@@ -1,0 +1,205 @@
+general:
+  device: gpu # cpu or gpu
+  supress_debug_prints: False # True: suppress debug prints, False: show debug prints
+
+  seq_start: 0 # start sequence
+  seq_end: 160000 # end sequence
+  single_segment: -1 # -1: use all segments, 0: use only the first segment, 1: use only the second segment, etc.
+
+  batch_size: 1 # batch size for the detectron2
+
+paths:
+  detectron_config: <path_to_detectron2>/projects/MViTv2/configs/cascade_mask_rcnn_mvitv2_b_in21k_3x.py
+  model_path: https://dl.fbaipublicfiles.com/detectron2/MViTv2/cascade_mask_rcnn_mvitv2_b_in12k_3x/f309003202/model_final_be5168.pkl
+  sam_path: <path_to_models>/sam.pth
+  odtrack_path: <path_to_odtrack>/
+
+  kitti_path: <path_to_kitti_dataset>/
+  all_dataset_path: <path_to_kitti_dataset>/complete_sequences/
+  waymo_path: <path_to_waymo_dataset>/raw_data/
+  waymo_info_path: ../data/ImageSets
+
+  merged_frames_path: <path_to_output>/frames_kitti_codetr/
+  labels_path: <path_to_output>/labels/
+  dimensions_path: <path_to_output>/dimensions/
+
+  custom_dataset_path: <path_to_output>/custom_dataset/
+
+frames_creation:
+  tracker_for_merging: 3D # 2D or 3D, either ODTrack for car tracking or 3D simple tracking proposed in the paper
+  use_icp: False # True: use ICP for transformation estimation, False: use the transformation from the IMU directly
+  use_growing_for_point_extraction: False # True: use context-aware-growing for point extraction, False: use the points in the mask frustum
+  use_SAM: False # True: Use SAM after detectron2 for fine-refinement of the predicted masks, False: use the predicted masks directly
+  use_pseudo_lidar: True # True: use pseudo-lidar (metric3d), False: use the LiDAR points directly
+  use_gt_masks: False  # True: use the ground truth masks for the frames merging, False: use the predicted masks
+
+  nscans_before: 100 # number of scans before the current scan for frames merging
+  nscans_after: 100 # number of scans after the current scan for frames merging
+  nscans_before_scale: 100 # number of scans before the current scan for scale estimation
+  nscans_after_scale: 120 # number of scans after the current scan for scale estimation
+  nscans_transformation_range: 130 # number of scans for the transformation estimation, if changed, transformations must be generated again
+
+  meters_per_sec_moving_detection: 0.5  # Value which specifies the velocity, at which object is no longer standstill
+  dist_treshold_tracking: 10.0
+  dist_treshold_moving: 5.0
+  alpha_value: 0.001
+  ratio_moving: 1. # Ratio for the moving detection
+  speed_moving: 0.75 # Speed for the moving detection
+  dist_moving: 15.0 # Distance for the moving detection
+
+  max_distance_pseudo_lidar: 75. # Maximum distance for the cars in pseudo-lidar
+  max_distance_for_detection: 50. # Maximum distance for the detections
+
+  use_hdbscan: False # True: use HDBSCAN for clustering, False: use the standard clustering
+  k_to_scale_estimation_save: 10 # number of frames for the scale
+  k_to_scale_estimation: 3 # number of frames for the scale
+  ensamble_threshold: 2 # number of methods needed for a point to decide it is an outlier
+  use_clever_aggregation: True # True: use the clever aggregation, False: use the standard aggregation
+
+  use_codetr: True # True: use CoDetR as Mask-RCNN backbone, False: use MvitV2 as Mask-RCNN backbone
+  extract_pedestrians: True # True: extract pedestrians, False: do not extract pedestrians
+
+optimization:
+  nms_merge_and_reopt: True # True: use NMS to merge the detections and reoptimize the merged detections, False: use the detections directly
+  nms_threshold: 0.1 # NMS IOU threshold
+  merge_two_trackers: False # True: merge the two trackers (2D tracker has higher priority), False: use only the specified tracker
+  points_for_moving: ref # ref or merged, ref: use the reference points for moving, merged: use the merged points for moving
+  index_nprobe: 1 # number of probes for the index in the Faiss library
+  skip_non_visible_cars: True # True: skip the cars which are not visible in the current frame, False: use all cars
+
+  opt_param1_iters: 40 # X
+  opt_param2_iters: 40 # Y or Z, depending on dataset
+  opt_param3_iters: 40 # Theta
+
+  robust_optimization: False # True: use the robust optimization, False: use the standard optimization
+
+  opt_param1_scale_iters: 10 # X
+  opt_param2_scale_iters: 10 # Y or Z, depending on dataset
+  scale_num_scale_iters: 8 # scale length
+  width_num_scale_iters: 8 # scale width
+
+  opt_param1_min: -2.  # Region over which we optimalize
+  opt_param1_max: 2.
+  opt_param2_min: -1.
+  opt_param2_max: 3.
+
+  steepness: 10. # steepness of the sigmoid function in the optimization
+
+  moving_cars_min_dist_for_angle: 3. # minimal distance between two car locations to robustly estimate yaw angle
+
+  use_dimensions_estimation_during_optim: False # True: use the dimensions estimation during optimization, False: use the fixed dimensions
+
+  optimize_cars: False # True: optimize the cars, False: do not optimize the cars
+  optimize_pedestrians: True # True: optimize the pedestrians, False: do not optimize the pedestrians
+
+scale_detector:
+  use_scale_detector: False # True: use the scale detector, False: same size is used for all detections
+  use_width_scaling: True # True: use the width scaling, False: keep width constant
+  use_independent_width_scaling: False # True: width is independent to the length, False: width is dependent to the length
+  use_all_templates_for_scale: True # True: use all templates for scale estimation, False: use only hatchback
+  use_bbox_reducer: True # True: use the bbox reducer, False: keep the bounding box as it is
+
+  scale_offset_length: 0.1 # Offset which is added after reducing, so we do not end directly on the last points
+  max_length_diff_scale: 0.75  # Maximum value of the scale until we use the scale reducer. If the diff is bigger, then we discard the reducer
+  width_bloat: 0.5  # Value by which is the bbox from scale detector bloated to the side so we do not miss any points.
+  threshold_for_scale_optim: 0.7  # If the normalized number of inliers in template is higher than this number, then we use it with scale detector.
+  scale_threshold: 2000  # Threshold which specifies if we have enough points to use the scale detector.
+
+  scale_min: 0.75 # minimal scale for the scale detector
+  scale_max: 1.25 # maximal scale for the scale detector
+
+  bbox_scale: 1.5 # Bounding box scale for the scale detector
+  num_of_templates: 4 # Number of templates for the scale detector
+
+downsampling:
+  type: both # Possible values: random, voxel or both
+  voxel_size: 0.15 # voxel size for downsampling the point cloud
+
+filtering:
+  filter_diameter: 4 # diameter of the filter for the 3D simple tracking
+
+  filt_template_threshold_optim: 10 # If we filter out the threshold and it has lower number of points than this threshold we continue
+  moving_detection_threshold: 2 # Threshold needed to determine if the car is moving or not
+  lidar_threshold_during_optim: 1000 #1000 / (60/(self.nscans_after + self.nscans_before + 1)) # Bigger number, because during optimization, we should have a lot of points, otherwise it is still not enough.
+  lidar_threshold_downsample: 10001
+  angle_per_pcd: 1. # Step in angle for the filtered templates
+  score_detectron_thresh: 0.7  # Minimum score for the detection of detectron, if the score is lower, we ignore that mask
+  rnd_seed: 12345  # Seed for the take_random
+
+templates:
+  template_height: 1.526 # KITTI: 1.526, WAYMO: 1.75, K360: 1.655
+  template_width: 1.63 # KITTI: 1.63, WAYMO: 2.0, K360: 2.062
+  template_length: 3.88 # KITTI: 3.88, WAYMO: 5.0, K360: 4.587
+
+  offset_fiat: 0.0 # 0.2 for KITTI, 0.0 for Waymo
+  offset_passat: 0.0 # 0.1 for KITTI, 0.0 for Waymo
+  offset_suv: 0.0 # 0.0 for KITTI, 0.0 for Waymo
+  offset_mpv: 0.0 # 0.0 for KITTI, 0.0 for Waymo
+
+  ped_template_height: 2.0
+  ped_template_width: 0.5
+  ped_template_length: 1.0
+
+loss_functions:
+  sigmoid_steepness: 10. # steepness of the sigmoid function in Template Fitting Loss (parameter k in the paper)
+  loss_function: binary2way # Possible values: medboth, binary1way, binary2way, med1way, diffbin, chamfer, trimmed
+  binary_loss_threshold: 0.2 # threshold for the binary loss function
+  trim_threshold: 0.3 # threshold for the trimmed loss function
+
+dataset:
+  dataset_stride: 20 # stride for the dataset, used mainly for waymo
+
+custom_dataset:
+  create_custom_dataset: False # True: create a custom dataset for debug, False: use the standard dataset
+  use_custom_dataset: False # True: use the custom dataset for debug, False: use the standard dataset
+  custom_dataset_size_to_load: 5 # number of frames to load for the custom dataset
+  distance_between_cars: 10. # distance between cars in the custom dataset for visualization
+
+output:
+  output_txt: False # save the results in a txt file in the KITTI format
+  save_optimized_cars: True # save the optimized cars
+
+image_stitching: #WAYMO ONLY
+  height_pxl_pad: 100 # padding for the height in pixels
+  width_pxl_pad: 750 # padding for the width in pixels
+
+tracker_2D:
+  tracker_name: odtrack
+  tracker_model: baseline_large # baseline_large or baseline_huge
+
+context_aware_growing:
+  growing_thresholds: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7] # Thresholds for the growing algorithm
+
+visualization:
+  show_3D_scan: True # show 3D LiDAR scan together with the 3D bounding boxes
+  show_image: False # show current images to the regarding frame
+  show_points_merged: True # show the merged points, otherwise show the points from scale detector
+
+  visu_our_labels: False # show our labels
+  visu_gt_labels: False # show ground truth labels
+  use_pcdet: False # if PCDet is used, set to True to visualize the results
+  show_pcdet: False # show the results of PCDet as predicted 3D labels
+  show_img: True # show the images
+
+  visu_whole_lidar: False # KITTI Only, show the whole LiDAR scan instead of a frustum regarding the camera
+  visu_predicted_bbox: True # show the predicted bounding boxes
+  visu_template: True # show the template for the detected object
+  visu_aggregated_lidar: True # show the aggregated LiDAR points
+  visu_scale_lidar: False # show the LiDAR points for the scale detector
+  visu_locations: True # show the locations of the detected objects
+  visu_closest_lidar_for_moving: False # show the closest LiDAR points for the moving detection, which is further used for the dimension estimation
+
+  show_real_lidar: True # show the real LiDAR points
+
+  visu_output_labels: False # show the labels in output folder, color: Red
+  visu_labels_gt: <path_to_kitti_dataset>/object_detection/training/label_2/ #If not None, show the labels, color: green
+  visu_labels1: <path_to_output>/labels_kitti_mvitv2/ #If not None, show the labels, color: blue
+  visu_labels2: <path_to_output>/labels_kitti_codetr/ #If not None, show the labels, color: yellow
+
+metric3d:
+  model: metric3d_vit_large # model for the metric3d e.g. metric3d_vit_small
+  save_also_imgs: True # save also the depth images for the metric3d
+
+deformable_mesh:
+  use_deformable_mesh: False # True: use the deformable mesh, False: use the bounding box
+  visu_deformable_mesh: False # show the deformable mesh
