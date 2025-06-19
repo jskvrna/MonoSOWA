@@ -150,8 +150,8 @@ custom_dataset:
   distance_between_cars: 10. # distance between cars in the custom dataset for visualization
 
 output:
-  output_txt: False # save the results in a txt file in the KITTI format
-  save_optimized_cars: True # save the optimized cars
+  output_txt: True # save the results in a txt file in the KITTI format
+  save_optimized_cars: False # save the optimized cars
 
 image_stitching: #WAYMO ONLY
   height_pxl_pad: 100 # padding for the height in pixels
@@ -191,7 +191,7 @@ visualization:
   visu_labels2: <path_to_output>/labels_kitti_codetr/ #If not None, show the labels, color: yellow
 
 metric3d:
-  model: metric3d_vit_large # model for the metric3d e.g. metric3d_vit_small
+  model: metric3d_vit_giant2 # model for the metric3d e.g. metric3d_vit_small
   save_also_imgs: True # save also the depth images for the metric3d
 
 deformable_mesh:
