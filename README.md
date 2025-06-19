@@ -119,16 +119,16 @@ It is worth noting that our used Canonical Objects Space can be simply implement
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/your_username/MonoSOWA.svg?style=for-the-badge
-[contributors-url]: https://github.com/your_username/MonoSOWA/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/your_username/MonoSOWA.svg?style=for-the-badge
-[forks-url]: https://github.com/your_username/MonoSOWA/network/members
-[stars-shield]: https://img.shields.io/github/stars/your_username/MonoSOWA.svg?style=for-the-badge
-[stars-url]: https://github.com/your_username/MonoSOWA/stargazers
-[issues-shield]: https://img.shields.io/github/issues/your_username/MonoSOWA.svg?style=for-the-badge
-[issues-url]: https://github.com/your_username/MonoSOWA/issues
-[license-shield]: https://img.shields.io/github/license/your_username/MonoSOWA.svg?style=for-the-badge
-[license-url]: https://github.com/your_username/MonoSOWA/blob/master/LICENSE.txt
+[contributors-shield]: https://img.shields.io/github/contributors/jskvrna/MonoSOWA.svg?style=for-the-badge
+[contributors-url]: https://github.com/jskvrna/MonoSOWA/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/jskvrna/MonoSOWA.svg?style=for-the-badge
+[forks-url]: https://github.com/jskvrna/MonoSOWA/network/members
+[stars-shield]: https://img.shields.io/github/stars/jskvrna/MonoSOWA.svg?style=for-the-badge
+[stars-url]: https://github.com/jskvrna/MonoSOWA/stargazers
+[issues-shield]: https://img.shields.io/github/issues/jskvrna/MonoSOWA.svg?style=for-the-badge
+[issues-url]: https://github.com/jskvrna/MonoSOWA/issues
+[license-shield]: https://img.shields.io/github/license/jskvrna/MonoSOWA.svg?style=for-the-badge
+[license-url]: https://github.com/jskvrna/MonoSOWA/blob/master/LICENSE.txt
 [product-screenshot]: images/screenshot.png
 [PyTorch.org]: https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white
 [PyTorch-url]: https://pytorch.org/
