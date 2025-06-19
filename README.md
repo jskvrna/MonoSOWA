@@ -337,7 +337,9 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [jskvrna.github.io](https://jskvrna.github.io/) - skvrnjan@fel.cvut.cz
+Jan Skvrna - [jskvrna.github.io](https://jskvrna.github.io/) - skvrnjan@fel.cvut.cz
+
+Czech Technical University in Prague - [Visual Recognition Group](https://vrg.fel.cvut.cz/)
 
 Project Link: [https://github.com/jskvrna/MonoSOWA](https://github.com/jskvrna/MonoSOWA)
 
