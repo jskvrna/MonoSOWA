@@ -111,7 +111,149 @@ It is worth noting that our used Canonical Objects Space can be simply implement
     cd ../../../..
     ```
 
+<!-- USAGE EXAMPLES -->
+## Usage
 
+Our method works fully with both KITTI and KITTI-360 datasets. 
+
+MonoDETR however expects the input in the KITTI format. For those reason we provide a script ```k360_to_k.py``` which converts KITTI-360 with pseudo-labels to a MonoDETR KITTI format.
+
+To use the Waymo Open Perception Dataset we provide a script, that converts it into KITTI-360 format. However only front camera is used and support and the labels are extracted only if they are present in the front camera. See ```waymo_to_kitti_projected.py``` for more details.
+
+### Pseudo labelling pipeline
+
+**Dataset Preparation**
+
+1. KITTI - https://www.cvlibs.net/datasets/kitti/
+    
+    a. Download the [3D Object Detection](https://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark=3d) data and the [Raw Data](https://www.cvlibs.net/datasets/kitti/raw_data.php) (complete sequences).
+
+    b. Unpack the `object_detection` data to match the following directory structure:
+    ```text
+    object_detection/
+    ├── training/
+    │   ├── calib/
+    │   ├── image_2/
+    │   ├── image_3/
+    │   ├── label_2/
+    │   └── velodyne/
+    └── testing/
+        ├── calib/
+        ├── image_2/
+        ├── image_3/
+        └── velodyne/
+    ```
+
+    c. Unpack the `raw_data` data to match the following directory structure:
+
+    ```text
+    raw_data/
+    ├── 2011_09_26/
+    │   ├── 2011_09_26_drive_0001_sync/
+    │   │   ├── image_00/
+    │   │   ├── image_01/
+    │   │   ├── image_02/
+    │   │   ├── image_03/
+    │   │   ├── oxts/
+    │   │   └── velodyne_points/
+    │   ├── ...
+    │   ├── calib_cam_to_cam.txt
+    │   ├── calib_imu_to_velo.txt
+    │   └── calib_velo_to_cam.txt
+    ├── 2011_09_28/
+    ├── 2011_09_29/
+    ├── 2011_09_30/
+    └── 2011_10_03/
+    ```
+
+2. KITTI-360 - https://www.cvlibs.net/datasets/kitti-360/
+
+    a. Download the [Perspective Images for Train & Val](https://www.cvlibs.net/datasets/kitti-360/download.php), [Calibrations](https://www.cvlibs.net/datasets/kitti-360/download.php) and [Vehicle Poses](https://www.cvlibs.net/datasets/kitti-360/download.php).
+
+    b. Unpack the `Perspective Images for Train & Val`, `Calibrations` and `Vehicle Poses` as follows:
+
+    ```text
+    KITTI-360/
+    ├── 2013_05_28_drive_0000_sync/
+    │   ├── image_00/
+    │   └── image_01/
+    ├── 2013_05_28_drive_0002_sync/
+    ├── 2013_05_28_drive_0003_sync/
+    ├── 2013_05_28_drive_0004_sync/
+    ├── 2013_05_28_drive_0005_sync/
+    ├── 2013_05_28_drive_0006_sync/
+    ├── 2013_05_28_drive_0007_sync/
+    ├── 2013_05_28_drive_0009_sync/
+    ├── 2013_05_28_drive_0010_sync/
+    ├── calibration/
+    └── data_poses/
+    ```
+
+**Pseudo label creator**
+
+1. Update the `pseudo_label_generator/3d/configs/config.yaml`. Mostly:
+    ```text
+    kitti_path: path to the object_detection
+    all_dataset_path: path to either raw_data of KITTI or KITTI-360 folder directly
+    detectron_config: path to the config of the mvitv2
+    merged_frames_path: path to the output folder, where the intermediate files will be stored
+    labels_path: path to the output folder, where the final labels will be saved
+    ```
+
+2. Generate relative transformations between frames (CPU load only):
+
+    KITTI:
+    ```sh 
+    cd pseudo_label_generator/3d/scrip
+    python main.py --config ../configs/config.yaml --dataset kitti --action transformations
+    ```
+
+    KITTI-360:
+    ```sh 
+    cd pseudo_label_generator/3d/scrip
+    python main.py --config ../configs/config.yaml --dataset all --action transformations
+    ```
+
+3. Generate pseudo-lidar with Metric3Dv2 (GPU is recommended):
+
+    KITTI:
+    ```sh 
+    cd pseudo_label_generator/3d/scrip
+    python main.py --config ../configs/config.yaml --dataset kitti --action lidar_scans
+    ```
+
+    KITTI-360:
+    ```sh 
+    cd pseudo_label_generator/3d/scrip
+    python main.py --config ../configs/config.yaml --dataset all --action lidar_scans
+    ```
+4. Generate 2D masks via MViTv2 (GPU is recommended):
+
+    KITTI:
+    ```sh 
+    cd pseudo_label_generator/3d/scrip
+    python main.py --config ../configs/config.yaml --dataset kitti --action mask_tracking
+    ```
+
+    KITTI-360:
+    ```sh 
+    cd pseudo_label_generator/3d/scrip
+    python main.py --config ../configs/config.yaml --dataset all --action mask_tracking
+    ```
+
+5. Perform frames aggregation and optimization (CPU only load, parallization is recommended):
+
+    KITTI:
+    ```sh 
+    cd pseudo_label_generator/3d/scrip
+    python main.py --config ../configs/config.yaml --dataset kitti --action optimization
+    ```
+
+    KITTI-360:
+    ```sh 
+    cd pseudo_label_generator/3d/scrip
+    python main.py --config ../configs/config.yaml --dataset all --action optimization
+    ```
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
