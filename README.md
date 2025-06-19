@@ -17,7 +17,9 @@
 # MonoSOWA
 
 Official implementation of **MonoSOWA**: **S**calable m**o**nocular 3D Object detector **W**ithout human **A**nnotations.
-
+<p align="center">
+    <img src="monosowa_intro.png" alt="MonoSOWA Overview" width="80%">
+</p>
 <!-- TABLE OF CONTENTS -->
 <details open>
     <summary>Table of Contents</summary>
@@ -32,7 +34,13 @@ Official implementation of **MonoSOWA**: **S**calable m**o**nocular 3D Object de
                 <li><a href="#installation">Installation</a></li>
             </ul>
         </li>
-        <li><a href="#usage">Usage</a></li>
+        <li>
+            <a href="#usage">Usage</a>
+            <ul>
+                <li><a href="#pseudo-labelling-pipeline">Pseudo-labelling-pipeline</a></li>
+                <li><a href="#monodetr-training">MonoDETR training</a></li>
+            </ul>
+        </li>
         <li><a href="#roadmap">Roadmap</a></li>
         <li><a href="#contributing">Contributing</a></li>
         <li><a href="#license">License</a></li>
@@ -254,6 +262,104 @@ To use the Waymo Open Perception Dataset we provide a script, that converts it i
     cd pseudo_label_generator/3d/scrip
     python main.py --config ../configs/config.yaml --dataset all --action optimization
     ```
+### Monodetr training
+
+We opt to only specify the trainin for KITTI dataset as the data preparation for KITTI-360 requires additional steps as only the KITTI format is supported by MonoDETR. Feel free to reach out to us if you need assistance :).
+
+**Dataset preparation**
+
+1. Copy the `object_detection` part of KITTI dataset and ImageSets into `MonoDETR/data/KITTI/` with the official labels. In the following format:
+
+    ```text
+    MonoDETR/data/KITTI/
+    ├── ImageSets/
+    │   ├── train.txt
+    │   └── test.txt
+    ├── training/
+    │   ├── calib/
+    │   ├── image_2/
+    │   ├── image_3/
+    │   ├── label_2/
+    │   └── velodyne/
+    └── testing/
+        ├── calib/
+        ├── image_2/
+        ├── image_3/
+        └── velodyne/
+    ```
+
+2. Use replace human ground-truth training samples with pseudo-label ones, but keep the validation one. Also prepare the labels for training.
+    ```sh
+    cd pseudo_label_generator/
+    python label_replacer.py MonoDETR/data/KITTI path_to_pseudo_labels
+    python label_preparation.py MonoDETR/data/KITTI
+    ```
+
+
+**Model training**
+
+To train the model, use the following command:
+```sh
+python train.py --config configs/monodetr.yaml
+```
+
+**Evaluation**
+
+To evaluate a trained model:
+```sh
+python test.py --config configs/monodetr.yaml
+```
+
+<!-- ROADMAP -->
+## Roadmap
+
+-   [ ] Remove unnecessary files
+-   [ ] Remove unnecessary packages
+-   [ ] Release all pre-trained models
+
+<!-- CONTRIBUTING -->
+## Contributing
+
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+Don't forget to give the project a star! Thanks again!
+
+1.  Fork the Project
+2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4.  Push to the Branch (`git push origin feature/AmazingFeature`)
+5.  Open a Pull Request
+
+<!-- LICENSE -->
+## License
+
+Distributed under the MIT License. See `LICENSE.txt` for more information.
+
+<!-- CONTACT -->
+## Contact
+
+Your Name - [jskvrna.github.io](https://jskvrna.github.io/) - skvrnjan@fel.cvut.cz
+
+Project Link: [https://github.com/jskvrna/MonoSOWA](https://github.com/jskvrna/MonoSOWA)
+
+<!-- ACKNOWLEDGMENTS -->
+## Acknowledgments
+
+We would like to thank [MonoDETR](https://github.com/ZrrSkywalker/MonoDETR) for their high-quality code and method.
+
+The research was supported by Czech Science Foundation Grant No. 24-10738M. The access to the computational infrastructure of the OP VVV funded project CZ.02.1.01/0.0/0.0/16\_019/0000765 ``Research Center for Informatics'' is also gratefully acknowledged. We also acknowledge the support from the Student Grant Competition of the Czech Technical University in Prague, grant No. SGS23/173/OHK3/3T/13.
+
+## Citation
+
+```bibtex
+@article{skvrna2025monosowa,
+    title={MonoSOWA: Scalable monocular 3D Object detector Without human Annotations},
+    author={Skvrna, Jan and Neumann, Lukas},
+    journal={arXiv preprint arXiv:2501.09481},
+    year={2025}
+}
+```
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
