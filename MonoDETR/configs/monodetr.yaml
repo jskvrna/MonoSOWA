@@ -3,7 +3,7 @@ continue_train: False
 
 dataset:
   type: &dataset_type 'KITTI'
-  root_dir: '<PATH_TO_KITTI_ROOT>'
+  root_dir: 'data/KITTI'
   train_split: 'train'
   test_split: 'val'
   batch_size: 16
@@ -131,7 +131,7 @@ trainer:
   save_frequency: 1
   # resume_model: True
   # pretrain_model: <PATH_TO_PRETRAIN_CHECKPOINT>
-  save_path: '<PATH_TO_OUTPUT_DIR>'
+  save_path: 'outputs/'
   save_all: True
   use_dn: False
   scalar: 5
