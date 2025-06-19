@@ -346,7 +346,7 @@ Project Link: [https://github.com/jskvrna/MonoSOWA](https://github.com/jskvrna/M
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-We would like to thank [MonoDETR](https://github.com/ZrrSkywalker/MonoDETR) for their high-quality code and method.
+We would like to thank [MonoDETR](https://github.com/ZrrSkywalker/MonoDETR) for their high-quality code and method. Also [Metric3Dv2](https://github.com/YvanYin/Metric3D) and [MViTv2](https://github.com/facebookresearch/mvit) are highly ackwnoledged.
 
 The research was supported by Czech Science Foundation Grant No. 24-10738M. The access to the computational infrastructure of the OP VVV funded project CZ.02.1.01/0.0/0.0/16\_019/0000765 ``Research Center for Informatics'' is also gratefully acknowledged. We also acknowledge the support from the Student Grant Competition of the Czech Technical University in Prague, grant No. SGS23/173/OHK3/3T/13.
 
