@@ -7,10 +7,8 @@
 
 [![arXiv][arxiv-shield]][arxiv-url]
 
-<!-- ... existing definitions ... -->
 [license-url]: https://github.com/jskvrna/MonoSOWA/blob/master/LICENSE.txt
 
-<!-- Add these new definitions -->
 [arxiv-shield]: https://img.shields.io/badge/arXiv-2405.12345-b31b1b.svg
 [arxiv-url]: https://arxiv.org/abs/2501.09481
 
@@ -37,8 +35,8 @@ Official implementation of **MonoSOWA**: **S**calable m**o**nocular 3D Object de
         <li>
             <a href="#usage">Usage</a>
             <ul>
-                <li><a href="#pseudo-labelling-pipeline">Pseudo-labelling-pipeline</a></li>
-                <li><a href="#monodetr-training">MonoDETR training</a></li>
+                <li><a href="#pseudo-labelling-pipeline">Pseudo-labelling Pipeline</a></li>
+                <li><a href="#monodetr-training">MonoDETR Training</a></li>
             </ul>
         </li>
         <li><a href="#roadmap">Roadmap</a></li>
@@ -61,57 +59,58 @@ The method is evaluated on three public datasets, where despite using no human l
 <!-- GETTING STARTED -->
 ## Getting Started
 
-To get a local copy up and running follow these simple steps.
+To get a local copy up and running, follow these simple steps.
 
 ### Prerequisites
 
-We recommend creating two distinct virtual environments, one for pseudo-labelling and second for MonoDETR, due to conflicts of packages.
+We recommend creating two separate virtual environments: one for pseudo-labelling and another for MonoDETR, due to potential package conflicts.
 
-Clone the repo
+Clone the repository:
 
 ```sh
 git clone https://github.com/jskvrna/MonoSOWA.git
 ```
 
-### Installation of Pseudo labelling pipeline
+### Installation of Pseudo-Labelling Pipeline
 
-1.  Create a virtual environment
+1.  Create a virtual environment:
     ```sh
     python3 -m venv pseudo_labelling
     source pseudo_labelling/bin/activate
     ```
-2.  Install dependencies from `requirements.txt`
+2.  Install dependencies from `requirements.txt`:
     ```sh
     cd MonoSOWA/pseudo_label_generator
     pip install -r requirements.txt
     ```
-3.  Install Detectron2
+3.  Install Detectron2:
     ```sh
     python -m pip install 'git+https://github.com/facebookresearch/detectron2.git'
     ```
-4.  Build PyTorch3D from source (recommended)
+4.  Build PyTorch3D from source (recommended):
     ```sh
     pip install "git+https://github.com/facebookresearch/pytorch3d.git"
     ```
 
 ### Installation of MonoDETR
-This gets little bit tricky. MultiScaleDeformableAttetion, which is required by MonoDETR, requires PyTorch version of lower than 2.0. I have tested it with PyTorch 1.13.1 and it works fine. However, as the MSDA is compiled it requires the nvcc (cuda toolkit) to have the same version as the pytorch has been compiled with. This makes it little bit harder to install it. 
 
-It is worth noting that our used Canonical Objects Space can be simply implemented to any off-the-shelf Monocular Detector.
+This step is a bit more involved. MultiScaleDeformableAttention, required by MonoDETR, needs a PyTorch version lower than 2.0. We have tested it with PyTorch 1.13.1, which works well. Since MSDA is compiled, the CUDA toolkit (nvcc) version must match the version PyTorch was compiled with. This can make installation more challenging.
 
-1.  Create a virtual environment
+Note: Our Canonical Objects Space can be implemented in any off-the-shelf monocular detector.
+
+1.  Create a virtual environment:
     ```sh
     deactivate
     cd ../../
     python3 -m venv monodetr
     source monodetr/bin/activate
     ```
-2.  Install dependencies from `requirements.txt`
+2.  Install dependencies from `requirements.txt`:
     ```sh
     cd MonoSOWA/MonoDETR
     pip install -r requirements.txt
     ```
-3. Compile the deformable attention
+3.  Compile the deformable attention module:
     ```sh
     cd lib/models/monodetr/ops/
     bash make.sh
@@ -122,13 +121,13 @@ It is worth noting that our used Canonical Objects Space can be simply implement
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Our method works fully with both KITTI and KITTI-360 datasets. 
+Our method fully supports both KITTI and KITTI-360 datasets.
 
-MonoDETR however expects the input in the KITTI format. For those reason we provide a script ```k360_to_k.py``` which converts KITTI-360 with pseudo-labels to a MonoDETR KITTI format.
+MonoDETR expects input in the KITTI format. For this reason, we provide the script `k360_to_k.py`, which converts KITTI-360 with pseudo-labels to the MonoDETR KITTI format.
 
-To use the Waymo Open Perception Dataset we provide a script, that converts it into KITTI-360 format. However only front camera is used and support and the labels are extracted only if they are present in the front camera. See ```waymo_to_kitti_projected.py``` for more details.
+To use the Waymo Open Perception Dataset, we provide a script that converts it into KITTI-360 format. Only the front camera is supported, and labels are extracted only if present in the front camera. See `waymo_to_kitti_projected.py` for more details.
 
-### Pseudo labelling pipeline
+### Pseudo-Labelling Pipeline
 
 **Dataset Preparation**
 
@@ -176,9 +175,9 @@ To use the Waymo Open Perception Dataset we provide a script, that converts it i
 
 2. KITTI-360 - https://www.cvlibs.net/datasets/kitti-360/
 
-    a. Download the [Perspective Images for Train & Val](https://www.cvlibs.net/datasets/kitti-360/download.php), [Calibrations](https://www.cvlibs.net/datasets/kitti-360/download.php) and [Vehicle Poses](https://www.cvlibs.net/datasets/kitti-360/download.php).
+    a. Download the [Perspective Images for Train & Val](https://www.cvlibs.net/datasets/kitti-360/download.php), [Calibrations](https://www.cvlibs.net/datasets/kitti-360/download.php), and [Vehicle Poses](https://www.cvlibs.net/datasets/kitti-360/download.php).
 
-    b. Unpack the `Perspective Images for Train & Val`, `Calibrations` and `Vehicle Poses` as follows:
+    b. Unpack the `Perspective Images for Train & Val`, `Calibrations`, and `Vehicle Poses` as follows:
 
     ```text
     KITTI-360/
@@ -197,18 +196,18 @@ To use the Waymo Open Perception Dataset we provide a script, that converts it i
     └── data_poses/
     ```
 
-**Pseudo label creator**
+**Pseudo-Label Creator**
 
-1. Update the `pseudo_label_generator/3d/configs/config.yaml`. Mostly:
+1. Update `pseudo_label_generator/3d/configs/config.yaml`. Most importantly:
     ```text
-    kitti_path: path to the object_detection
-    all_dataset_path: path to either raw_data of KITTI or KITTI-360 folder directly
-    detectron_config: path to the config of the mvitv2
-    merged_frames_path: path to the output folder, where the intermediate files will be stored
-    labels_path: path to the output folder, where the final labels will be saved
+    kitti_path: path to object_detection
+    all_dataset_path: path to either KITTI raw_data or the KITTI-360 folder
+    detectron_config: path to the mvitv2 config
+    merged_frames_path: path to the output folder for intermediate files
+    labels_path: path to the output folder for final labels
     ```
 
-2. Generate relative transformations between frames (CPU load only):
+2. Generate relative transformations between frames (CPU only):
 
     KITTI:
     ```sh 
@@ -222,7 +221,7 @@ To use the Waymo Open Perception Dataset we provide a script, that converts it i
     python main.py --config ../configs/config.yaml --dataset all --action transformations
     ```
 
-3. Generate pseudo-lidar with Metric3Dv2 (GPU is recommended):
+3. Generate pseudo-lidar with Metric3Dv2 (GPU recommended):
 
     KITTI:
     ```sh 
@@ -235,7 +234,7 @@ To use the Waymo Open Perception Dataset we provide a script, that converts it i
     cd pseudo_label_generator/3d/scrip
     python main.py --config ../configs/config.yaml --dataset all --action lidar_scans
     ```
-4. Generate 2D masks via MViTv2 (GPU is recommended):
+4. Generate 2D masks via MViTv2 (GPU recommended):
 
     KITTI:
     ```sh 
@@ -249,7 +248,7 @@ To use the Waymo Open Perception Dataset we provide a script, that converts it i
     python main.py --config ../configs/config.yaml --dataset all --action mask_tracking
     ```
 
-5. Perform frames aggregation and optimization (CPU only load, parallization is recommended):
+5. Perform frame aggregation and optimization (CPU only, parallelization recommended):
 
     KITTI:
     ```sh 
@@ -262,13 +261,13 @@ To use the Waymo Open Perception Dataset we provide a script, that converts it i
     cd pseudo_label_generator/3d/scrip
     python main.py --config ../configs/config.yaml --dataset all --action optimization
     ```
-### Monodetr training
+### MonoDETR Training
 
-We opt to only specify the trainin for KITTI dataset as the data preparation for KITTI-360 requires additional steps as only the KITTI format is supported by MonoDETR. Feel free to reach out to us if you need assistance :).
+We describe training for the KITTI dataset, as preparing KITTI-360 data requires additional steps (MonoDETR only supports KITTI format). Feel free to contact us if you need assistance.
 
-**Dataset preparation**
+**Dataset Preparation**
 
-1. Copy the `object_detection` part of KITTI dataset and ImageSets into `MonoDETR/data/KITTI/` with the official labels. In the following format:
+1. Copy the `object_detection` part of the KITTI dataset and ImageSets into `MonoDETR/data/KITTI/` with the official labels, using the following structure:
 
     ```text
     MonoDETR/data/KITTI/
@@ -288,17 +287,16 @@ We opt to only specify the trainin for KITTI dataset as the data preparation for
         └── velodyne/
     ```
 
-2. Use replace human ground-truth training samples with pseudo-label ones, but keep the validation one. Also prepare the labels for training.
+2. Replace human ground-truth training samples with pseudo-labels, but keep the validation set. Also, prepare the labels for training:
     ```sh
     cd pseudo_label_generator/
     python label_replacer.py MonoDETR/data/KITTI path_to_pseudo_labels
     python label_preparation.py MonoDETR/data/KITTI
     ```
 
+**Model Training**
 
-**Model training**
-
-To train the model, use the following command:
+To train the model, use:
 ```sh
 python train.py --config configs/monodetr.yaml
 ```
@@ -309,74 +307,3 @@ To evaluate a trained model:
 ```sh
 python test.py --config configs/monodetr.yaml
 ```
-
-<!-- ROADMAP -->
-## Roadmap
-
--   [ ] Remove unnecessary files
--   [ ] Remove unnecessary packages
--   [ ] Release all pre-trained models
-
-<!-- CONTRIBUTING -->
-## Contributing
-
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
-Don't forget to give the project a star! Thanks again!
-
-1.  Fork the Project
-2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4.  Push to the Branch (`git push origin feature/AmazingFeature`)
-5.  Open a Pull Request
-
-<!-- LICENSE -->
-## License
-
-Distributed under the MIT License. See `LICENSE.txt` for more information.
-
-<!-- CONTACT -->
-## Contact
-
-Your Name - [jskvrna.github.io](https://jskvrna.github.io/) - skvrnjan@fel.cvut.cz
-
-Project Link: [https://github.com/jskvrna/MonoSOWA](https://github.com/jskvrna/MonoSOWA)
-
-<!-- ACKNOWLEDGMENTS -->
-## Acknowledgments
-
-We would like to thank [MonoDETR](https://github.com/ZrrSkywalker/MonoDETR) for their high-quality code and method. Also [Metric3Dv2](https://github.com/YvanYin/Metric3D) and [MViTv2](https://github.com/facebookresearch/mvit) are highly ackwnoledged.
-
-The research was supported by Czech Science Foundation Grant No. 24-10738M. The access to the computational infrastructure of the OP VVV funded project CZ.02.1.01/0.0/0.0/16\_019/0000765 ``Research Center for Informatics'' is also gratefully acknowledged. We also acknowledge the support from the Student Grant Competition of the Czech Technical University in Prague, grant No. SGS23/173/OHK3/3T/13.
-
-## Citation
-
-```bibtex
-@article{skvrna2025monosowa,
-    title={MonoSOWA: Scalable monocular 3D Object detector Without human Annotations},
-    author={Skvrna, Jan and Neumann, Lukas},
-    journal={arXiv preprint arXiv:2501.09481},
-    year={2025}
-}
-```
-
-<!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/jskvrna/MonoSOWA.svg?style=for-the-badge
-[contributors-url]: https://github.com/jskvrna/MonoSOWA/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/jskvrna/MonoSOWA.svg?style=for-the-badge
-[forks-url]: https://github.com/jskvrna/MonoSOWA/network/members
-[stars-shield]: https://img.shields.io/github/stars/jskvrna/MonoSOWA.svg?style=for-the-badge
-[stars-url]: https://github.com/jskvrna/MonoSOWA/stargazers
-[issues-shield]: https://img.shields.io/github/issues/jskvrna/MonoSOWA.svg?style=for-the-badge
-[issues-url]: https://github.com/jskvrna/MonoSOWA/issues
-[license-shield]: https://img.shields.io/github/license/jskvrna/MonoSOWA.svg?style=for-the-badge
-[license-url]: https://github.com/jskvrna/MonoSOWA/blob/master/LICENSE.txt
-[product-screenshot]: images/screenshot.png
-[PyTorch.org]: https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white
-[PyTorch-url]: https://pytorch.org/
-[NumPy.org]: https://img.shields.io/badge/numpy-%23013243.svg?style=for-the-badge&logo=numpy&logoColor=white
-[NumPy-url]: https://numpy.org/
-[OpenCV.org]: https://img.shields.io/badge/opencv-%235C3EE8.svg?style=for-the-badge&logo=opencv&logoColor=white
-[OpenCV-url]: https://opencv.org/
