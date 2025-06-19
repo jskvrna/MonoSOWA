@@ -211,7 +211,6 @@ class AutoLabel3D:
         self.extracted_info = None
         self.extracted_masks = None
         self.cars = None
-        self.pedestrians = None
         self.do_single_segment = None
         self.cars3D_start = None
         self.compressed_detandtracked = None

@@ -36,7 +36,7 @@ class Visualization(AutoLabel3D):
     def __init__(self, args):
         super().__init__(args)
 
-    def visualize_3D(self, cars, pedestrians=None):
+    def visualize_3D(self, cars):
         if not self.cfg.visualization.show_real_lidar:
             lidar = load_pseudo_lidar(self.pseudo_lidar_folder + str(self.file_number).zfill(10) + '.npz')
         else:
@@ -48,11 +48,6 @@ class Visualization(AutoLabel3D):
             if cars[car_idx].optimized:
                 cars[car_idx] = self.create_bboxes_from_opt_values_tracker([cars[car_idx]], False, True)[0]
             self.visu3D_car(cars[car_idx], car_idx)
-        if pedestrians is not None:
-            for ped_idx in range(len(pedestrians)):
-                if pedestrians[ped_idx].optimized:
-                    pedestrians[ped_idx] = self.create_bboxes_from_opt_values_tracker([pedestrians[ped_idx]], False, True)[0]
-                self.visu3D_car(pedestrians[ped_idx], ped_idx)
 
         if self.args.dataset == 'waymo':
             self.visu_ground_truth_waymo()
@@ -326,18 +321,6 @@ class Visualization(AutoLabel3D):
                 bbox = open3d.geometry.OrientedBoundingBox(center, r.as_matrix(), size)
                 bbox.color = np.array(color)
                 self.bboxes.append(bbox)
-            elif arr[i][0] == 'Pedestrian' or arr[i][0] == 'pedestrian' or arr[i][0] == 'Cyclist' or arr[i][0] == 'cyclist':
-                size = np.array(
-                    [(float(arr[i][9])), (float(arr[i][8])), (float(arr[i][10]))])  # Height, width, length
-                center = np.array(
-                    [(float(arr[i][11])), (float(arr[i][12]) - size[1] / 2), (float(arr[i][13]))])  # x,y,z
-                yaw = (float(arr[i][14])) - np.pi / 2.  # For unknow reasons, have to be shifted ...
-
-                r = R.from_euler('zyx', [0, yaw, 0], degrees=False)
-                bbox = open3d.geometry.OrientedBoundingBox(center, r.as_matrix(), size)
-                bbox.color = np.array(color_ped)
-                self.bboxes.append(bbox)
-
 
     def draw_boxes_from_labels_all(self, labels_path, color):
         if not os.path.exists(labels_path + self.folder + "/labels_00/" + self.number + '.txt'):

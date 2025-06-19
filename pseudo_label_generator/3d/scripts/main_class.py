@@ -218,12 +218,6 @@ class MainClass(Output, Losses, Optimizer, Visualization, Filtering, Loader, Sca
                         else:
                             self.cars[car_idx] = self.optimize_car(self.cars[car_idx])
 
-                if self.cfg.frames_creation.extract_pedestrians and self.cfg.optimization.optimize_pedestrians:
-                    for ped_idx in range(len(self.pedestrians)):
-                        if not self.est_location_and_downsample(self.pedestrians[ped_idx], pedestrian=True):
-                            continue
-                        self.pedestrians[ped_idx] = self.optimize_pedestrian(self.pedestrians[ped_idx])
-
             if not self.cfg.general.supress_debug_prints:
                 print("Doing NMS")
 
@@ -258,13 +252,13 @@ class MainClass(Output, Losses, Optimizer, Visualization, Filtering, Loader, Sca
                         self.bbox_reducer_tracked(self.cars)
 
             if self.cfg.output.output_txt:
-                self.writetxt_cars(self.cars, self.pedestrians)
+                self.writetxt_cars(self.cars)
 
             if self.cfg.output.save_optimized_cars:
                 self.save_optimized_cars(self.cars)
 
             if self.cfg.visualization.show_3D_scan:
-                self.visualize_3D(self.cars, self.pedestrians)
+                self.visualize_3D(self.cars)
             if self.cfg.visualization.show_image:
                 self.show_image(self.img)
 

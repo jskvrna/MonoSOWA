@@ -146,22 +146,13 @@ class Loader(AutoLabel3D):
             print("Get standing car candidates")
         car_locations, car_locations_lidar, car_locations_masks = self.get_standing_car_candidates(transformations)
 
-        if self.cfg.frames_creation.extract_pedestrians:
-            pedestrians_locations, pedestrians_lidar, pedestrians_masks = self.get_pedestrians_candidates(transformations)
-
         if not self.cfg.general.supress_debug_prints:
             print("Perform 3D tracking")
         moving_cars, moving_cars_lidar, moving_cars_masks = self.perform_3D_tracking_kitti(car_locations, car_locations_lidar, car_locations_masks)
 
-        if self.cfg.frames_creation.extract_pedestrians:
-            moving_pedestrians, moving_pedestrians_lidar, moving_pedestrians_masks = self.perform_3D_tracking_kitti(pedestrians_locations, pedestrians_lidar, pedestrians_masks)
-
         if not self.cfg.general.supress_debug_prints:
             print("Create cars from features")
         cars = self.create_cars_from_extracted_feats_3DTrack(moving_cars, moving_cars_lidar, None, moving_cars_masks)
-
-        if self.cfg.frames_creation.extract_pedestrians:
-            pedestrians = self.create_cars_from_extracted_feats_3DTrack(moving_pedestrians, moving_pedestrians_lidar, None, moving_pedestrians_masks)
 
         if not self.cfg.general.supress_debug_prints:
             print("Decide if moving or standing car")
@@ -174,42 +165,24 @@ class Loader(AutoLabel3D):
         #cars = self.decide_if_standing_or_moving_both6(cars, waymo=False)
         #cars = self.decide_if_standing_or_moving_both7(cars, waymo=False)
 
-        if self.cfg.frames_creation.extract_pedestrians:
-            pedestrians = self.decide_if_standing_or_moving_both5(pedestrians, waymo=False)
-
         if not self.cfg.general.supress_debug_prints:
             print("Filter cars")
         cars = self.filter_moving_and_not_visible(cars, waymo=False)
         cars = self.extract_scale_lidar(cars, transformations, waymo=False)
         cars = self.choose_proper_mask(cars, waymo=False)
 
-        if self.cfg.frames_creation.extract_pedestrians:
-            pedestrians = self.filter_moving_and_not_visible(pedestrians, waymo=False)
-            pedestrians = self.extract_scale_lidar(pedestrians, transformations, waymo=False)
-            pedestrians = self.choose_proper_mask(pedestrians, waymo=False)
-
         if not self.cfg.general.supress_debug_prints:
             print("Final Modifications")
         if self.cfg.frames_creation.use_clever_aggregation:
             cars = self.standing_concatenate_lidar_clever(cars, transformations)
-            if self.cfg.frames_creation.extract_pedestrians:
-                pedestrians = self.standing_concatenate_lidar_clever(pedestrians, transformations)
         else:
             cars = self.standing_concatenate_lidar(cars)
-            if self.cfg.frames_creation.extract_pedestrians:
-                pedestrians = self.standing_concatenate_lidar(pedestrians)
 
         cars = self.filter_hidden_standing_cars_tracked(cars, waymo=False)
         cars = self.moving_lidar_keep_ref(cars, waymo=False)
 
-        if self.cfg.frames_creation.extract_pedestrians:
-            pedestrians = self.filter_hidden_standing_cars_tracked(pedestrians, waymo=False)
-            pedestrians = self.moving_lidar_keep_ref(pedestrians, waymo=False)
-
         if self.cfg.frames_creation.use_pseudo_lidar:
             cars = self.filter_distant_cars_pseudo_lidar(cars, waymo=False)
-            if self.cfg.frames_creation.extract_pedestrians:
-                pedestrians = self.filter_distant_cars_pseudo_lidar(pedestrians, waymo=False)
 
         for car in cars:
             if car.lidar is not None:
@@ -217,14 +190,6 @@ class Loader(AutoLabel3D):
                 if len(car.lidar) > 10000:
                     car.lidar = self.downsample_random(car.lidar[:, :3], 10000)
                 car.lidar = car.lidar.astype(np.float32)
-
-        if self.cfg.frames_creation.extract_pedestrians:
-            for pedestrian in pedestrians:
-                if pedestrian.lidar is not None:
-                    # To reduce the size of the lidar in storage
-                    if len(pedestrian.lidar) > 10000:
-                        pedestrian.lidar = self.downsample_random(pedestrian.lidar[:, :3], 10000)
-                    pedestrian.lidar = pedestrian.lidar.astype(np.float32)
 
         if save:
             compressed_arr = zstd.compress(pickle.dumps(cars, pickle.HIGHEST_PROTOCOL))
@@ -234,11 +199,6 @@ class Loader(AutoLabel3D):
                     f.write(compressed_arr)
             else:
                 with open(self.cfg.paths.merged_frames_path + "cars_3DTrack/" + self.file_name + ".zstd", 'wb') as f:
-                    f.write(compressed_arr)
-
-            if self.cfg.frames_creation.extract_pedestrians:
-                compressed_arr = zstd.compress(pickle.dumps(pedestrians, pickle.HIGHEST_PROTOCOL))
-                with open(self.cfg.paths.merged_frames_path + "pedestrians/" + self.file_name + ".zstd", 'wb') as f:
                     f.write(compressed_arr)
 
         else:
@@ -252,14 +212,6 @@ class Loader(AutoLabel3D):
                 car.lidar = np.concatenate((car.lidar, padding), axis=1).T
 
             self.cars = sorted(cars, key=lambda x: x.lidar.shape[1], reverse=True)
-
-            if self.cfg.frames_creation.extract_pedestrians:
-                for pedestrian in pedestrians:
-                    padding = np.ones((pedestrian.lidar.shape[0], 3))
-
-                    pedestrian.lidar = np.concatenate((pedestrian.lidar, padding), axis=1).T
-
-            self.pedestrians = sorted(pedestrians, key=lambda x: x.lidar.shape[1], reverse=True)
 
 
     def load_and_prepare_lidar_scan_from_multiple_all(self, filename, img, save=False):
@@ -463,33 +415,6 @@ class Loader(AutoLabel3D):
                 car.lidar = np.concatenate((car.lidar, padding), axis=1).T
                 new_cars.append(car)
         self.cars = new_cars
-
-        if self.cfg.frames_creation.extract_pedestrians:
-            with open(self.cfg.paths.merged_frames_path + "pedestrians/" + self.file_name + ".zstd", 'rb') as f:
-                decompressed_data = zstd.decompress(f.read())
-            pedestrians = pickle.loads(decompressed_data)
-            self.pedestrians = pedestrians
-            self.pedestrians = sorted(self.pedestrians, key=lambda x: x.lidar.shape[0], reverse=True)
-
-            new_pedestrians = []
-
-            for pedestrian in self.pedestrians:
-                if pedestrian.lidar is not None:
-                    center = np.zeros((1, 3))
-                    center[0, 0] = np.median(pedestrian.lidar[:, 0])
-                    center[0, 1] = np.median(pedestrian.lidar[:, 1])
-                    center[0, 2] = np.median(pedestrian.lidar[:, 2])
-
-                    idx, distances, indexes = index_faiss.range_search(np.ascontiguousarray(center).astype('float32'), 2. ** 2)
-
-                    if len(distances) < 1:
-                        continue
-
-                    padding = np.ones((pedestrian.lidar.shape[0], 3))
-
-                    pedestrian.lidar = np.concatenate((pedestrian.lidar, padding), axis=1).T
-                    new_pedestrians.append(pedestrian)
-            self.pedestrians = new_pedestrians
 
     def load_merged_frames_from_files_KITTI_all(self):
         self.load_and_prepare_lidar_scan_all(self.file_name, self.img)
@@ -1508,45 +1433,6 @@ class Loader(AutoLabel3D):
 
         return car_locations, car_locations_lidar, car_locations_masks
 
-    def get_pedestrians_candidates(self, transformations):
-        pedestrian_locations = []
-        pedestrian_lidar = []
-        pedestrian_masks = []
-
-        if self.cfg.frames_creation.use_codetr:
-            precomputed_masks = self.precompute_detectron_kitti_v2(pedestrian=True)
-        else:
-            precomputed_masks = self.precompute_detectron_kitti() #TODO Update this for pedestrians
-
-        for i in range(-self.cfg.frames_creation.nscans_before, self.cfg.frames_creation.nscans_after + 1):
-            if self.cfg.frames_creation.use_pseudo_lidar:
-                path_to_cur_velo = self.pseudo_lidar_folder + f'{self.file_number + i :0>10}' + '.npz'
-            else:
-                path_to_cur_velo = self.path_to_folder + 'velodyne_points/data/' + f'{self.file_number + i :0>10}' + '.bin'
-
-            if self.file_number + i < 0 or self.file_number + i >= len(self.kitti_data.oxts) or not os.path.exists(path_to_cur_velo):
-                pedestrian_locations.append([])
-                pedestrian_lidar.append([])
-                pedestrian_masks.append([])
-                continue
-
-            T_cur_to_ref = transformations[i + self.cfg.frames_creation.nscans_before, :, :]
-
-            # Load the velo scan
-            if self.cfg.frames_creation.use_pseudo_lidar:
-                lidar_cur = np.array(load_pseudo_lidar(path_to_cur_velo))
-            else:
-                lidar_cur = np.array(load_velo_scan(path_to_cur_velo))
-            lidar_cur = self.prepare_scan(self.file_name, self.img, lidar_cur, save=False)
-
-            masks = precomputed_masks[i + self.cfg.frames_creation.nscans_before]
-            ped_loc, lidar_points, masks = self.get_car_locations_from_img(lidar_cur, T_cur_to_ref, masks) #TODO Be aware this can be problematic as it filters out predictions with less than X points.
-            pedestrian_locations.append(ped_loc)
-            pedestrian_lidar.append(lidar_points)
-            pedestrian_masks.append(masks)
-
-        return pedestrian_locations, pedestrian_lidar, pedestrian_masks
-
     def get_standing_car_candidates_all(self, transformations):
         car_locations = []
         car_locations_lidar = []
@@ -1901,7 +1787,7 @@ class Loader(AutoLabel3D):
             masks = pickle.loads(decompressed_data)
             return masks[100 - self.cfg.frames_creation.nscans_before: 100 + self.cfg.frames_creation.nscans_after + 1]
 
-    def precompute_detectron_kitti_v2(self, pedestrian=False):
+    def precompute_detectron_kitti_v2(self):
         if self.generate_raw_masks_or_tracking:
             #TODO Implement for mvitv2
             return None
@@ -1913,10 +1799,7 @@ class Loader(AutoLabel3D):
                 folder = full_path_to_folder[-3]
                 subfolder = full_path_to_folder[-2]
 
-                if pedestrian:
-                    path_to_mask = os.path.join(self.cfg.paths.merged_frames_path, "masks_raw_pedestrians/", folder, subfolder,f'{self.file_number + i :0>10}' + '.zstd')
-                else:
-                    path_to_mask = os.path.join(self.cfg.paths.merged_frames_path, "masks_raw/", folder, subfolder, f'{self.file_number + i :0>10}' + '.zstd')
+                path_to_mask = os.path.join(self.cfg.paths.merged_frames_path, "masks_raw/", folder, subfolder, f'{self.file_number + i :0>10}' + '.zstd')
                 if not os.path.exists(path_to_mask):
                     masks_to_output.append([])
                     continue

@@ -11,19 +11,14 @@ general:
 paths:
   detectron_config: <path_to_detectron2>/projects/MViTv2/configs/cascade_mask_rcnn_mvitv2_b_in21k_3x.py
   model_path: https://dl.fbaipublicfiles.com/detectron2/MViTv2/cascade_mask_rcnn_mvitv2_b_in12k_3x/f309003202/model_final_be5168.pkl
-  sam_path: <path_to_models>/sam.pth
-  odtrack_path: <path_to_odtrack>/
 
   kitti_path: <path_to_kitti_dataset>/
   all_dataset_path: <path_to_kitti_dataset>/complete_sequences/
   waymo_path: <path_to_waymo_dataset>/raw_data/
   waymo_info_path: ../data/ImageSets
 
-  merged_frames_path: <path_to_output>/frames_kitti_codetr/
+  merged_frames_path: <path_to_output>/frames_kitti/
   labels_path: <path_to_output>/labels/
-  dimensions_path: <path_to_output>/dimensions/
-
-  custom_dataset_path: <path_to_output>/custom_dataset/
 
 frames_creation:
   tracker_for_merging: 3D # 2D or 3D, either ODTrack for car tracking or 3D simple tracking proposed in the paper
@@ -33,8 +28,8 @@ frames_creation:
   use_pseudo_lidar: True # True: use pseudo-lidar (metric3d), False: use the LiDAR points directly
   use_gt_masks: False  # True: use the ground truth masks for the frames merging, False: use the predicted masks
 
-  nscans_before: 100 # number of scans before the current scan for frames merging
-  nscans_after: 100 # number of scans after the current scan for frames merging
+  nscans_before: 30 # number of scans before the current scan for frames merging
+  nscans_after: 30 # number of scans after the current scan for frames merging
   nscans_before_scale: 100 # number of scans before the current scan for scale estimation
   nscans_after_scale: 120 # number of scans after the current scan for scale estimation
   nscans_transformation_range: 130 # number of scans for the transformation estimation, if changed, transformations must be generated again
@@ -56,8 +51,7 @@ frames_creation:
   ensamble_threshold: 2 # number of methods needed for a point to decide it is an outlier
   use_clever_aggregation: True # True: use the clever aggregation, False: use the standard aggregation
 
-  use_codetr: True # True: use CoDetR as Mask-RCNN backbone, False: use MvitV2 as Mask-RCNN backbone
-  extract_pedestrians: True # True: extract pedestrians, False: do not extract pedestrians
+  use_codetr: False # True: use CoDetR as Mask-RCNN backbone, False: use MvitV2 as Mask-RCNN backbone
 
 optimization:
   nms_merge_and_reopt: True # True: use NMS to merge the detections and reoptimize the merged detections, False: use the detections directly
@@ -89,8 +83,8 @@ optimization:
 
   use_dimensions_estimation_during_optim: False # True: use the dimensions estimation during optimization, False: use the fixed dimensions
 
-  optimize_cars: False # True: optimize the cars, False: do not optimize the cars
-  optimize_pedestrians: True # True: optimize the pedestrians, False: do not optimize the pedestrians
+  optimize_cars: True # True: optimize the cars, False: do not optimize the cars
+  optimize_pedestrians: False # True: optimize the pedestrians, False: do not optimize the pedestrians
 
 scale_detector:
   use_scale_detector: False # True: use the scale detector, False: same size is used for all detections

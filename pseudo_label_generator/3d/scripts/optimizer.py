@@ -49,19 +49,7 @@ class Optimizer(AutoLabel3D):
             return car
         else:
             return car
-
-    def optimize_pedestrian(self, pedestrian):
-        pedestrian.length = self.cfg.templates.ped_template_length
-        pedestrian.width = self.cfg.templates.ped_template_width
-        pedestrian.height = self.cfg.templates.ped_template_height
-        pedestrian.model = 0
-        if pedestrian.moving:
-            pedestrian = self.optimize_ped_bbox_moving(pedestrian)
-        else:
-            pedestrian = self.optimize_ped_bbox(pedestrian)
-        pedestrian.optimized = True
-        return pedestrian
-
+        
     def optimize_coarse(self, car=None):
         if car is None:
             raise Exception("Car is None")
@@ -498,94 +486,3 @@ class Optimizer(AutoLabel3D):
         template_it[:, 2] += z
 
         return template_it
-
-    def optimize_ped_bbox(self, pedestrian):
-        min_loss = np.inf
-        opt_values = np.array([0., 0., 0.])
-
-        lidar = pedestrian.lidar
-        lidar = o3d.utility.Vector3dVector(np.array(lidar.transpose()[:, :3]))
-
-        for opt_param1 in np.linspace(self.cfg.optimization.opt_param1_min, self.cfg.optimization.opt_param1_max, num=self.cfg.optimization.opt_param1_iters):
-            for opt_param2 in np.linspace(self.cfg.optimization.opt_param2_min, self.cfg.optimization.opt_param2_max, num=self.cfg.optimization.opt_param2_iters):
-                for opt_param3 in np.linspace(0, 2 * np.pi - (2 * np.pi / self.cfg.optimization.opt_param3_iters), num=self.cfg.optimization.opt_param3_iters):
-                    R = np.array([
-                        [np.cos(-opt_param3), 0., np.sin(-opt_param3)],
-                        [0., 1., 0.],
-                        [-np.sin(-opt_param3), 0., np.cos(-opt_param3)]
-                    ])
-
-                    box_center = np.array([opt_param1 + self.x_mean_lidar, self.y_mean_lidar, opt_param2 + self.z_mean_lidar])
-                    box_dims = np.array([pedestrian.length, pedestrian.height, pedestrian.width])
-                    # Create an oriented bounding box
-                    obb = o3d.geometry.OrientedBoundingBox(
-                        center=box_center,
-                        R=R,
-                        extent=box_dims  # Length, width, height
-                    )
-
-                    indices = obb.get_point_indices_within_bounding_box(lidar)
-                    loss = -len(indices)
-
-                    if loss < min_loss:
-                        min_loss = loss
-                        opt_values = np.array([opt_param1, opt_param2, opt_param3])
-
-        pedestrian.x = opt_values[0] + self.x_mean_lidar
-        pedestrian.y = self.y_mean_lidar
-        pedestrian.z = opt_values[1] + self.z_mean_lidar
-        pedestrian.theta = opt_values[2]
-
-        return pedestrian
-
-    def optimize_ped_bbox_moving(self, pedestrian):
-        min_loss = np.inf
-        opt_values = np.array([0., 0., 0.])
-
-        lidar = pedestrian.lidar
-        lidar = o3d.utility.Vector3dVector(np.array(lidar.transpose()[:, :3]))
-
-        if hasattr(pedestrian, 'estimated_angle'):
-            estimated_angle = pedestrian.estimated_angle
-        else:
-            estimated_angle = self.estimate_angle_from_movement_tracked(pedestrian)
-
-        opt_param1_range = np.linspace(self.cfg.optimization.opt_param1_min, self.cfg.optimization.opt_param1_max, num=self.cfg.optimization.opt_param1_iters)
-        opt_param2_range = np.linspace(self.cfg.optimization.opt_param2_min + 1., self.cfg.optimization.opt_param2_max + 1., num=self.cfg.optimization.opt_param2_iters)
-        if estimated_angle is not None:
-            opt_param3_range = [estimated_angle]
-        else:
-            opt_param3_range = np.linspace(0, 2 * np.pi - (2 * np.pi/self.cfg.optimization.opt_param3_iters), num=self.cfg.optimization.opt_param3_iters)
-
-        for opt_param1 in opt_param1_range:
-            for opt_param2 in opt_param2_range:
-                for opt_param3 in opt_param3_range:
-                    R = np.array([
-                        [np.cos(-opt_param3), 0., np.sin(-opt_param3)],
-                        [0., 1., 0.],
-                        [-np.sin(-opt_param3), 0., np.cos(-opt_param3)]
-                    ])
-
-                    box_center = np.array([opt_param1 + self.x_mean_lidar, self.y_mean_lidar, opt_param2 + self.z_mean_lidar])
-                    box_dims = np.array([pedestrian.length, pedestrian.height, pedestrian.width])
-                    # Create an oriented bounding box
-                    obb = o3d.geometry.OrientedBoundingBox(
-                        center=box_center,
-                        R=R,
-                        extent=box_dims  # Length, width, height
-                    )
-
-                    indices = obb.get_point_indices_within_bounding_box(lidar)
-                    loss = -len(indices)
-
-                    if loss < min_loss:
-                        min_loss = loss
-                        opt_values = np.array([opt_param1, opt_param2, opt_param3])
-
-        pedestrian.x = opt_values[0] + self.x_mean_lidar
-        pedestrian.y = self.y_mean_lidar
-        pedestrian.z = opt_values[1] + self.z_mean_lidar
-        pedestrian.theta = opt_values[2]
-
-        return pedestrian
-

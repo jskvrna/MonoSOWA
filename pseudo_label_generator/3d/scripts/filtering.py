@@ -10,7 +10,7 @@ class Filtering(AutoLabel3D):
     def __init__(self, args):
         super().__init__(args)
 
-    def est_location_and_downsample(self, car, pedestrian=False):
+    def est_location_and_downsample(self, car):
         self.curr_lidar = car.lidar
 
         if self.curr_lidar is None:
@@ -18,7 +18,7 @@ class Filtering(AutoLabel3D):
         else:
             filtered_lidar = self.curr_lidar.T
 
-            if filtered_lidar.shape[0] < self.cfg.filtering.lidar_threshold_during_optim and not car.moving and not pedestrian:
+            if filtered_lidar.shape[0] < self.cfg.filtering.lidar_threshold_during_optim and not car.moving:
                 return False
 
             x_mean = np.median(filtered_lidar[:, 0])
