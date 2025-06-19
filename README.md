@@ -5,16 +5,12 @@
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 
-[![HF Competition][hf-shield]][hf-url]
-
 [![arXiv][arxiv-shield]][arxiv-url]
 
 <!-- ... existing definitions ... -->
 [license-url]: https://github.com/jskvrna/MonoSOWA/blob/master/LICENSE.txt
 
 <!-- Add these new definitions -->
-[hf-shield]: https://img.shields.io/badge/HuggingFace%20Competition-1st%20Place-blue
-[hf-url]: https://huggingface.co/spaces/usm3d/S23DR2025
 [arxiv-shield]: https://img.shields.io/badge/arXiv-2405.12345-b31b1b.svg
 [arxiv-url]: https://arxiv.org/abs/2501.09481
 
