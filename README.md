@@ -278,7 +278,6 @@ We describe training for the KITTI dataset, as preparing KITTI-360 data requires
     │   ├── calib/
     │   ├── image_2/
     │   ├── image_3/
-    │   ├── label_2/
     │   └── velodyne/
     └── testing/
         ├── calib/
@@ -287,16 +286,17 @@ We describe training for the KITTI dataset, as preparing KITTI-360 data requires
         └── velodyne/
     ```
 
-2. Replace human ground-truth training samples with pseudo-labels, but keep the validation set. Also, prepare the labels for training:
+2. Use replace human ground-truth training samples with pseudo-label ones, but keep the validation one. Also prepare the labels for training.
     ```sh
     cd pseudo_label_generator/
     python label_replacer.py MonoDETR/data/KITTI path_to_pseudo_labels
     python label_preparation.py MonoDETR/data/KITTI
     ```
 
-**Model Training**
 
-To train the model, use:
+**Model training**
+
+To train the model, use the following command:
 ```sh
 python train.py --config configs/monodetr.yaml
 ```
@@ -307,3 +307,74 @@ To evaluate a trained model:
 ```sh
 python test.py --config configs/monodetr.yaml
 ```
+
+<!-- ROADMAP -->
+## Roadmap
+
+-   [ ] Remove unnecessary files
+-   [ ] Remove unnecessary packages
+-   [ ] Release all pre-trained models
+
+<!-- CONTRIBUTING -->
+## Contributing
+
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+Don't forget to give the project a star! Thanks again!
+
+1.  Fork the Project
+2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4.  Push to the Branch (`git push origin feature/AmazingFeature`)
+5.  Open a Pull Request
+
+<!-- LICENSE -->
+## License
+
+Distributed under the MIT License. See `LICENSE.txt` for more information.
+
+<!-- CONTACT -->
+## Contact
+
+Your Name - [jskvrna.github.io](https://jskvrna.github.io/) - skvrnjan@fel.cvut.cz
+
+Project Link: [https://github.com/jskvrna/MonoSOWA](https://github.com/jskvrna/MonoSOWA)
+
+<!-- ACKNOWLEDGMENTS -->
+## Acknowledgments
+
+We would like to thank [MonoDETR](https://github.com/ZrrSkywalker/MonoDETR) for their high-quality code and method. Also [Metric3Dv2](https://github.com/YvanYin/Metric3D) and [MViTv2](https://github.com/facebookresearch/mvit) are highly ackwnoledged.
+
+The research was supported by Czech Science Foundation Grant No. 24-10738M. The access to the computational infrastructure of the OP VVV funded project CZ.02.1.01/0.0/0.0/16\_019/0000765 ``Research Center for Informatics'' is also gratefully acknowledged. We also acknowledge the support from the Student Grant Competition of the Czech Technical University in Prague, grant No. SGS23/173/OHK3/3T/13.
+
+## Citation
+
+```bibtex
+@article{skvrna2025monosowa,
+    title={MonoSOWA: Scalable monocular 3D Object detector Without human Annotations},
+    author={Skvrna, Jan and Neumann, Lukas},
+    journal={arXiv preprint arXiv:2501.09481},
+    year={2025}
+}
+```
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+[contributors-shield]: https://img.shields.io/github/contributors/jskvrna/MonoSOWA.svg?style=for-the-badge
+[contributors-url]: https://github.com/jskvrna/MonoSOWA/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/jskvrna/MonoSOWA.svg?style=for-the-badge
+[forks-url]: https://github.com/jskvrna/MonoSOWA/network/members
+[stars-shield]: https://img.shields.io/github/stars/jskvrna/MonoSOWA.svg?style=for-the-badge
+[stars-url]: https://github.com/jskvrna/MonoSOWA/stargazers
+[issues-shield]: https://img.shields.io/github/issues/jskvrna/MonoSOWA.svg?style=for-the-badge
+[issues-url]: https://github.com/jskvrna/MonoSOWA/issues
+[license-shield]: https://img.shields.io/github/license/jskvrna/MonoSOWA.svg?style=for-the-badge
+[license-url]: https://github.com/jskvrna/MonoSOWA/blob/master/LICENSE.txt
+[product-screenshot]: images/screenshot.png
+[PyTorch.org]: https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white
+[PyTorch-url]: https://pytorch.org/
+[NumPy.org]: https://img.shields.io/badge/numpy-%23013243.svg?style=for-the-badge&logo=numpy&logoColor=white
+[NumPy-url]: https://numpy.org/
+[OpenCV.org]: https://img.shields.io/badge/opencv-%235C3EE8.svg?style=for-the-badge&logo=opencv&logoColor=white
+[OpenCV-url]: https://opencv.org/
