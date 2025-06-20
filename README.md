@@ -81,6 +81,7 @@ git clone https://github.com/jskvrna/MonoSOWA.git
 2.  Install dependencies from `requirements.txt`:
     ```sh
     cd MonoSOWA/pseudo_label_generator
+    pip install waymo-open-dataset-tf-2-11-0==1.6.1
     pip install -r requirements.txt
     ```
 3.  Install Detectron2:
@@ -211,13 +212,13 @@ To use the Waymo Open Perception Dataset, we provide a script that converts it i
 
     KITTI:
     ```sh 
-    cd pseudo_label_generator/3d/scrip
+    cd pseudo_label_generator/3d/scripts
     python main.py --config ../configs/config.yaml --dataset kitti --action transformations
     ```
 
     KITTI-360:
     ```sh 
-    cd pseudo_label_generator/3d/scrip
+    cd pseudo_label_generator/3d/scripts
     python main.py --config ../configs/config.yaml --dataset all --action transformations
     ```
 
@@ -225,26 +226,22 @@ To use the Waymo Open Perception Dataset, we provide a script that converts it i
 
     KITTI:
     ```sh 
-    cd pseudo_label_generator/3d/scrip
     python main.py --config ../configs/config.yaml --dataset kitti --action lidar_scans
     ```
 
     KITTI-360:
     ```sh 
-    cd pseudo_label_generator/3d/scrip
     python main.py --config ../configs/config.yaml --dataset all --action lidar_scans
     ```
 4. Generate 2D masks via MViTv2 (GPU recommended):
 
     KITTI:
     ```sh 
-    cd pseudo_label_generator/3d/scrip
     python main.py --config ../configs/config.yaml --dataset kitti --action mask_tracking
     ```
 
     KITTI-360:
     ```sh 
-    cd pseudo_label_generator/3d/scrip
     python main.py --config ../configs/config.yaml --dataset all --action mask_tracking
     ```
 
@@ -252,13 +249,11 @@ To use the Waymo Open Perception Dataset, we provide a script that converts it i
 
     KITTI:
     ```sh 
-    cd pseudo_label_generator/3d/scrip
     python main.py --config ../configs/config.yaml --dataset kitti --action optimization
     ```
 
     KITTI-360:
     ```sh 
-    cd pseudo_label_generator/3d/scrip
     python main.py --config ../configs/config.yaml --dataset all --action optimization
     ```
 ### MonoDETR Training
