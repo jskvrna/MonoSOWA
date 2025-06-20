@@ -587,10 +587,11 @@ class MainClass(Output, Losses, Optimizer, Visualization, Filtering, Loader, Sca
 
     def prepare_frame(self):
         map_data_cur = self.mapping_data[int(self.random_indexes[int(self.file_name)]) - 1]
-        self.kitti_data = pykitti.raw(self.cfg.paths.kitti_sequences_path, map_data_cur[0], map_data_cur[1].split("_")[-2])
-        self.path_to_folder = os.path.join(self.cfg.paths.kitti_sequences_path, map_data_cur[0], map_data_cur[1]) + '/'
+        self.kitti_data = pykitti.raw(self.cfg.paths.kitti_path + '/complete_sequences/', map_data_cur[0],map_data_cur[1].split("_")[-2])
+        self.file_number = int(map_data_cur[2])
+        self.path_to_folder = self.cfg.paths.kitti_path + '/complete_sequences/' + map_data_cur[0] + '/' + map_data_cur[1] + '/'
         if self.cfg.frames_creation.use_pseudo_lidar:
-            self.pseudo_lidar_folder = os.path.join(self.cfg.paths.pseudo_lidar_base_path, map_data_cur[0], map_data_cur[1], 'pcds') + '/'
+            self.pseudo_lidar_folder = self.cfg.paths.merged_frames_path + '/lidar_raw/' + map_data_cur[0] + '/' + map_data_cur[1] + '/' + 'pcds/'
         return map_data_cur
 
     def load_det2_and_sam(self):
@@ -684,7 +685,7 @@ class MainClass(Output, Losses, Optimizer, Visualization, Filtering, Loader, Sca
         if self.cfg.dataset.dataset_stride > 1:
             idx_dict = {}
             #Open a txt file, read all lines, separate by ;
-            with open(self.cfg.paths.waymo_infos_path, 'r') as f:
+            with open("../data/waymo_infos_20_downsampled.txt", 'r') as f:
                 lines = f.readlines()
 
                 for line in lines:
@@ -698,48 +699,52 @@ class MainClass(Output, Losses, Optimizer, Visualization, Filtering, Loader, Sca
             return None
 
     def save_det_and_trackingV2(self, pred_masks, mask_idxs):
-        det_and_tracked_dir = os.path.join(self.cfg.paths.det_and_tracked_path, self.file_name)
-        if not os.path.isdir(det_and_tracked_dir):
-            os.makedirs(det_and_tracked_dir)
+        if not os.path.isdir(self.cfg.paths.merged_frames_path + "detandtrackedV2/" + self.file_name):
+            os.mkdir(self.cfg.paths.merged_frames_path + "detandtrackedV2/" + self.file_name)
 
-        for idx, mask in enumerate(pred_masks):
-            file_path = os.path.join(det_and_tracked_dir, f"mask_{idx}.zstd")
+        idx = 0
+        for mask in pred_masks:
             compressed_arr = zstd.compress(pickle.dumps(mask, pickle.HIGHEST_PROTOCOL))
-            with open(file_path, 'wb') as f:
+            with open(self.cfg.paths.merged_frames_path + "detandtrackedV2/" + self.file_name + "/" + "mask_" + str(idx) + ".zstd", 'wb') as f:
                 f.write(compressed_arr)
+            idx += 1
 
-        for idx, info in enumerate(mask_idxs):
-            file_path = os.path.join(det_and_tracked_dir, f"info_{idx}.zstd")
+        idx = 0
+        for info in mask_idxs:
             compressed_arr = zstd.compress(pickle.dumps(info, pickle.HIGHEST_PROTOCOL))
-            with open(file_path, 'wb') as f:
+            with open(self.cfg.paths.merged_frames_path + "detandtrackedV2/" + self.file_name + "/" + "info_" + str(idx) + ".zstd", 'wb') as f:
                 f.write(compressed_arr)
+            idx += 1
 
     def load_det_and_trackingV2(self):
         pred_masks = []
         extracted_info = []
 
-        det_and_tracked_dir = os.path.join(self.cfg.paths.det_and_tracked_path, self.file_name)
         idx = 0
         while True:
-            mask_path = os.path.join(det_and_tracked_dir, f"mask_{idx}.zstd")
-            if os.path.exists(mask_path):
-                with open(mask_path, 'rb') as f:
+            if os.path.exists(
+                    self.cfg.paths.merged_frames_path + "detandtrackedV2/" + self.file_name + "/" + "mask_" + str(idx) + ".zstd"):
+                with open(self.cfg.paths.merged_frames_path + "detandtrackedV2/" + self.file_name + "/" + "mask_" + str(idx) + ".zstd",
+                          'rb') as f:
+                    idx += 1
                     decompressed = zstd.decompress(f.read())
                     mask = pickle.loads(decompressed)
                     pred_masks.append(mask)
-                idx += 1
             else:
                 break
 
         idx = 0
         while True:
-            info_path = os.path.join(det_and_tracked_dir, f"info_{idx}.zstd")
-            if os.path.exists(info_path):
-                with open(info_path, 'rb') as f:
+            if os.path.exists(
+                    self.cfg.paths.merged_frames_path + "detandtrackedV2/" + self.file_name + "/" + "info_" + str(
+                        idx) + ".zstd"):
+                with open(self.cfg.paths.merged_frames_path + "detandtrackedV2/" + self.file_name + "/" + "info_" + str(
+                        idx) + ".zstd",
+                          'rb') as f:
+                    idx += 1
                     decompressed = zstd.decompress(f.read())
                     info = pickle.loads(decompressed)
                     extracted_info.append(info)
-                idx += 1
             else:
                 break
 
@@ -761,12 +766,10 @@ class MainClass(Output, Losses, Optimizer, Visualization, Filtering, Loader, Sca
                     continue
 
             if self.cfg.frames_creation.use_growing_for_point_extraction:
-                file_path = os.path.join(self.cfg.paths.cars_2d_track_growing_path, self.file_name, f"{pic_index}.zstd")
-                if not os.path.isfile(file_path):
+                if not os.path.isfile(self.cfg.paths.merged_frames_path + "/cars_2DTrack_growing/" + self.file_name + "/" + str(pic_index) + '.zstd'):
                     missing = True
             else:
-                file_path = os.path.join(self.cfg.paths.cars_2d_track_path, self.file_name, f"{pic_index}.zstd")
-                if not os.path.isfile(file_path):
+                if not os.path.isfile(self.cfg.paths.merged_frames_path + "/cars_2DTrack/" + self.file_name + "/" + str(pic_index) + '.zstd'):
                     missing = True
 
         return not missing
@@ -778,19 +781,16 @@ class MainClass(Output, Losses, Optimizer, Visualization, Filtering, Loader, Sca
             if car.lidar is not None:
                 new_cars.append(car)
         cars = new_cars
-        
-        os.makedirs(self.cfg.paths.optimized_cars_path, exist_ok=True)
-        
-        car_path = os.path.join(self.cfg.paths.optimized_cars_path, f"{self.file_name}.zstd")
         compressed_arr = zstd.compress(dill.dumps(cars, dill.HIGHEST_PROTOCOL))
-        with open(car_path, 'wb') as f:
+
+        with open(self.cfg.paths.merged_frames_path + '/optimized_cars/' + self.file_name + ".zstd", 'wb') as f:
             f.write(compressed_arr)
 
         # Save also calib info
         calib = [self.kitti_data.calib.T_cam2_velo, self.kitti_data.calib.P_rect_00]
         compressed_arr = zstd.compress(dill.dumps(calib, dill.HIGHEST_PROTOCOL))
-        calib_path = os.path.join(self.cfg.paths.optimized_cars_path, f"{self.file_name}_calib.zstd")
-        with open(calib_path, 'wb') as f:
+        with open(self.cfg.paths.merged_frames_path + '/optimized_cars/' + self.file_name + "_calib" + ".zstd",
+                  'wb') as f:
             f.write(compressed_arr)
 
     def save_optimized_cars_all(self, cars):
@@ -800,19 +800,16 @@ class MainClass(Output, Losses, Optimizer, Visualization, Filtering, Loader, Sca
             if car.lidar is not None:
                 new_cars.append(car)
         cars = new_cars
-        
-        os.makedirs(self.cfg.paths.optimized_cars_path, exist_ok=True)
-        
-        car_path = os.path.join(self.cfg.paths.optimized_cars_path, f"{self.file_name}.zstd")
         compressed_arr = zstd.compress(dill.dumps(cars, dill.HIGHEST_PROTOCOL))
-        with open(car_path, 'wb') as f:
+
+        with open(self.cfg.paths.merged_frames_path + '/optimized_cars/' + self.file_name + ".zstd", 'wb') as f:
             f.write(compressed_arr)
 
         # Save also calib info
         calib = [np.eye(4), self.P2_rect]
         compressed_arr = zstd.compress(dill.dumps(calib, dill.HIGHEST_PROTOCOL))
-        calib_path = os.path.join(self.cfg.paths.optimized_cars_path, f"{self.file_name}_calib.zstd")
-        with open(calib_path, 'wb') as f:
+        with open(self.cfg.paths.merged_frames_path + '/optimized_cars/' + self.file_name + "_calib" + ".zstd",
+                  'wb') as f:
             f.write(compressed_arr)
 
     def build_index_of_imgs(self):
@@ -836,13 +833,12 @@ class MainClass(Output, Losses, Optimizer, Visualization, Filtering, Loader, Sca
 
     def build_index_of_imgs_waymoc(self):
         all_imgs_index = []
-        training_path = os.path.join(self.cfg.paths.all_dataset_path, self.cfg.paths.waymoc_training_subfolder)
-        for folder in sorted(os.listdir(training_path)):
-            folder_path = os.path.join(training_path, folder)
-            if not os.path.isdir(folder_path):
+        for folder in sorted(os.listdir(os.path.join(self.cfg.paths.all_dataset_path, 'training'))):
+            if not os.path.isdir(os.path.join(self.cfg.paths.all_dataset_path, 'training', folder)):
                 continue
 
-            path_to_imgs = os.path.join(folder_path, 'image_2/')
+            tmp_folder_path = os.path.join(self.cfg.paths.all_dataset_path, 'training', folder)
+            path_to_imgs = os.path.join(tmp_folder_path, 'image_2/')
             image_paths = sorted(glob.glob(os.path.join(path_to_imgs, '*.png')))
 
             if len(image_paths) == 0:

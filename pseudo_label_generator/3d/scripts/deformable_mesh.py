@@ -162,7 +162,7 @@ class Deformable_Mesh(AutoLabel3D):
 
         src_mesh = self.mesh_templates_p3d[0].to(device)
         #src_mesh = ico_sphere(level=3, device=device)
-        #src_mesh = load_objs_as_meshes(["<path_to_your_obj_file>"], device=device)
+        #src_mesh = load_objs_as_meshes(["../data/sedan_test.obj"], device=device)
 
         verts = src_mesh.verts_packed()
         num_verts = verts.shape[0]

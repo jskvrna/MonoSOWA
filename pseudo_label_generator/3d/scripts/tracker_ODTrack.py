@@ -12,8 +12,8 @@ class Tracker_ODTrack(AutoLabel3D):
         super().__init__(args)
 
         if self.generate_raw_masks_or_tracking and self.cfg.frames_creation.tracker_for_merging == '2D':
-            odtrack_path = "/path/to/odtrack"  # Placeholder for the ODTrack library path
-            sam_path = "/path/to/sam_checkpoint.pth"  # Placeholder for the SAM model checkpoint path
+            odtrack_path = self.cfg.paths.odtrack_path
+            sam_path = None  # TODO
             sys.path.append(odtrack_path)
 
             module = importlib.import_module('lib.test.evaluation')

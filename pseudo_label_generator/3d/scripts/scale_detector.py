@@ -32,17 +32,13 @@ class ScaleDetector(AutoLabel3D):
                 break
 
         if min_one_standing:
-            # Placeholder for the relative path to velodyne data.
-            # This should ideally be loaded from a configuration file.
-            velodyne_data_subpath = os.path.join('velodyne_points', 'data')
-
             for i in range(-self.cfg.frames_creation.nscans_before_scale, self.cfg.frames_creation.nscans_after_scale + 1):
                 # Check if we have enough data to do the merging over this frame
                 if self.args.dataset == 'kitti':
                     if self.cfg.frames_creation.use_pseudo_lidar:
-                        path_to_cur_velo = os.path.join(self.pseudo_lidar_folder, f'{self.file_number + i :0>10}.npz')
+                        path_to_cur_velo = self.pseudo_lidar_folder + f'{self.file_number + i :0>10}' + '.npz'
                     else:
-                        path_to_cur_velo = os.path.join(self.path_to_folder, velodyne_data_subpath, f'{self.file_number + i :0>10}.bin')
+                        path_to_cur_velo = self.path_to_folder + 'velodyne_points/data/' + f'{self.file_number + i :0>10}' + '.bin'
                     # Check that we have everything we need
                     if self.file_number + i < 0 or self.file_number + i >= len(self.kitti_data.oxts) or not os.path.exists(path_to_cur_velo):
                         continue

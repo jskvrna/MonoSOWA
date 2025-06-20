@@ -8,7 +8,7 @@ def parse_args(argv):
     parser.add_argument('--action', type=str, default='demo', choices=['lidar_scans', 'transformations', 'homographies', 'mask_tracking',
                                  'frames_aggregation', 'optimization', 'dimensions_output', 'demo', 'candidates'], help=('Action to perform: lidar_scans, transformations, homographies, '
                               'mask_tracking, frames_aggregation, optimization, dimensions_output, demo (default: demo), candidates'))
-    parser.add_argument('--config', type=str, required=True, help='Path to the configuration file (e.g., path/to/config.yaml)')
+    parser.add_argument('--config', type=str, default='../configs/config.yaml', help='Path to the configuration file (default: ../configs/config.yaml)')
     parser.add_argument('--seq_start', type=int, default=-1, help='Sequence start index (default: -1 -> use the one in config)')
     parser.add_argument('--seq_end', type=int, default=-1, help='Sequence end index (default: -1 -> use the one in config)')
 
@@ -35,4 +35,3 @@ if __name__ == '__main__':
         autolabel.main_kitti360(args)
     elif args.dataset == 'waymo_converted':
         autolabel.main_waymo_converted(args)
-

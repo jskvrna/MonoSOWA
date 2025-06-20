@@ -45,16 +45,16 @@ class Metric3D(AutoLabel3D):
                 continue
             if not self.cfg.general.supress_debug_prints:
                 print("Current folder for pseudo_lidar: ", folder)
-            output = os.path.join(self.cfg.paths.merged_frames_path, self.cfg.path_templates.lidar_raw_dir)
+            output = os.path.join(self.cfg.paths.merged_frames_path, "lidar_raw/")
             if not os.path.exists(os.path.join(output, folder)):
                 os.makedirs(os.path.join(output, folder))
 
             # load calibration
             if dataset == 'kitti':
-                calibration_file_path = os.path.join(self.cfg.paths.all_dataset_path, folder, self.cfg.path_templates.kitti_calib_file)
+                calibration_file_path = os.path.join(self.cfg.paths.all_dataset_path, folder, 'calib_cam_to_cam.txt')
                 P2 = self.load_calibration(calibration_file_path)
             else:
-                calibration_file_path = os.path.join(self.cfg.paths.all_dataset_path, self.cfg.path_templates.calibration_dir, self.cfg.path_templates.perspective_file)
+                calibration_file_path = os.path.join(self.cfg.paths.all_dataset_path, 'calibration', 'perspective.txt')
                 P2 = self.load_calibration(calibration_file_path)
 
             for subfolder in self.shuffle_with_seed(os.listdir(os.path.join(self.cfg.paths.all_dataset_path, folder))):
@@ -63,7 +63,7 @@ class Metric3D(AutoLabel3D):
                 if not self.cfg.general.supress_debug_prints:
                     print("Current subfolder for pseudo_lidar: ", subfolder)
                 tmp_folder_path = os.path.join(self.cfg.paths.all_dataset_path, folder, subfolder)
-                path_to_imgs = os.path.join(tmp_folder_path, self.cfg.path_templates.kitti_image_dir)
+                path_to_imgs = os.path.join(tmp_folder_path, 'image_02/data/')
                 image_paths = self.shuffle_with_seed(sorted(glob.glob(os.path.join(path_to_imgs, '*.png'))))
 
                 output_path = os.path.join(output, folder, subfolder)
@@ -71,15 +71,15 @@ class Metric3D(AutoLabel3D):
                 if not os.path.exists(output_path):
                     os.makedirs(output_path)
                 if self.cfg.metric3d.save_also_imgs:
-                    if not os.path.exists(os.path.join(output_path, self.cfg.path_templates.pngs_dir)):
-                        os.makedirs(os.path.join(output_path, self.cfg.path_templates.pngs_dir))
-                if not os.path.exists(os.path.join(output_path, self.cfg.path_templates.pcds_dir)):
-                    os.makedirs(os.path.join(output_path, self.cfg.path_templates.pcds_dir))
+                    if not os.path.exists(os.path.join(output_path, 'pngs')):
+                        os.makedirs(os.path.join(output_path, 'pngs'))
+                if not os.path.exists(os.path.join(output_path, 'pcds')):
+                    os.makedirs(os.path.join(output_path, 'pcds'))
 
                 for image_path in tqdm(image_paths, desc="Processing Images"):
                     file_name = os.path.basename(image_path)
                     file_name = file_name.split('.')[0]
-                    if os.path.exists(os.path.join(output_path, self.cfg.path_templates.pcds_dir, file_name + '.npz')):
+                    if os.path.exists(os.path.join(output_path, 'pcds', file_name + '.npz')):
                         continue
 
                     img = cv2.imread(image_path)[:, :, ::-1]
@@ -91,10 +91,10 @@ class Metric3D(AutoLabel3D):
                         #rgbd = np.clip(rgbd, 0, 65535)
                         #rgbd = rgbd.astype(np.uint16)
                         #cv2.imwrite(os.path.join(output_path, 'pngs', file_name + '.png'), rgbd)
-                        np.savez_compressed(os.path.join(output_path, self.cfg.path_templates.pngs_dir, file_name + '.npz'), array1=rgbd)
+                        np.savez_compressed(os.path.join(output_path, 'pngs', file_name + '.npz'), array1=rgbd)
 
 
-                    np.savez_compressed(os.path.join(output_path, self.cfg.path_templates.pcds_dir, file_name + '.npz'), array1=pseudo_lidar)
+                    np.savez_compressed(os.path.join(output_path, 'pcds', file_name + '.npz'), array1=pseudo_lidar)
 
         return None
 
@@ -109,22 +109,22 @@ class Metric3D(AutoLabel3D):
                 continue
             if not self.cfg.general.supress_debug_prints:
                 print("Current folder for pseudo_lidar: ", folder)
-            output = os.path.join(self.cfg.paths.merged_frames_path, self.cfg.path_templates.lidar_raw_dir)
+            output = os.path.join(self.cfg.paths.merged_frames_path, "lidar_raw/")
             if not os.path.exists(os.path.join(output, folder)):
                 os.makedirs(os.path.join(output, folder))
 
             # load calibration
             if dataset == 'kitti':
-                calibration_file_path = os.path.join(self.cfg.paths.all_dataset_path, folder, self.cfg.path_templates.kitti_calib_file)
+                calibration_file_path = os.path.join(self.cfg.paths.all_dataset_path, folder, 'calib_cam_to_cam.txt')
                 P2 = self.load_calibration(calibration_file_path)
             else:
-                calibration_file_path = os.path.join(self.cfg.paths.all_dataset_path, self.cfg.path_templates.calibration_dir, self.cfg.path_templates.perspective_file)
+                calibration_file_path = os.path.join(self.cfg.paths.all_dataset_path, 'calibration', 'perspective.txt')
                 P2 = self.load_calibration_all(calibration_file_path)
 
             if not self.cfg.general.supress_debug_prints:
                 print("Current subfolder for pseudo_lidar: ", folder)
             tmp_folder_path = os.path.join(self.cfg.paths.all_dataset_path, folder)
-            path_to_imgs = os.path.join(tmp_folder_path, self.cfg.path_templates.all_image_dir)
+            path_to_imgs = os.path.join(tmp_folder_path, 'image_00/data_rect/')
             image_paths = self.shuffle_with_seed(sorted(glob.glob(os.path.join(path_to_imgs, '*.png'))))
 
             output_path = os.path.join(output, folder)
@@ -132,16 +132,16 @@ class Metric3D(AutoLabel3D):
             if not os.path.exists(output_path):
                 os.makedirs(output_path)
             if self.cfg.metric3d.save_also_imgs:
-                if not os.path.exists(os.path.join(output_path, self.cfg.path_templates.pngs_dir)):
-                    os.makedirs(os.path.join(output_path, self.cfg.path_templates.pngs_dir))
-            if not os.path.exists(os.path.join(output_path, self.cfg.path_templates.pcds_dir)):
-                os.makedirs(os.path.join(output_path, self.cfg.path_templates.pcds_dir))
+                if not os.path.exists(os.path.join(output_path, 'pngs')):
+                    os.makedirs(os.path.join(output_path, 'pngs'))
+            if not os.path.exists(os.path.join(output_path, 'pcds')):
+                os.makedirs(os.path.join(output_path, 'pcds'))
 
             for image_path in tqdm(image_paths, desc="Processing Images"):
                 start = time.time_ns()
                 file_name = os.path.basename(image_path)
                 file_name = file_name.split('.')[0]
-                if os.path.exists(os.path.join(output_path, self.cfg.path_templates.pcds_dir, file_name + '.npz')):
+                if os.path.exists(os.path.join(output_path, 'pcds', file_name + '.npz')):
                     continue
 
                 img = cv2.imread(image_path)[:, :, ::-1]
@@ -155,11 +155,11 @@ class Metric3D(AutoLabel3D):
                     print('Mean: ', np.mean(all_times), 'Var: ', np.var(all_times), 'Total_frames: ', len(all_times))
 
                 if self.cfg.metric3d.save_also_imgs:
-                    cv2.imwrite(os.path.join(output_path, self.cfg.path_templates.pngs_dir, file_name + '.png'), rgbd)
+                    cv2.imwrite(os.path.join(output_path, 'pngs', file_name + '.png'), rgbd)
                 #o3d_pcd = o3d.geometry.PointCloud()
                 #o3d_pcd.points = o3d.utility.Vector3dVector(pseudo_lidar)
                 #o3d.io.write_point_cloud(os.path.join(output_path, 'pcds', file_name + '.pcd'), o3d_pcd)
-                np.savez_compressed(os.path.join(output_path, self.cfg.path_templates.pcds_dir, file_name + '.npz'), array1=pseudo_lidar)
+                np.savez_compressed(os.path.join(output_path, 'pcds', file_name + '.npz'), array1=pseudo_lidar)
                 #show the point cloud
                 #o3d.visualization.draw_geometries([o3d_pcd])
 
@@ -169,7 +169,7 @@ class Metric3D(AutoLabel3D):
         # Input: img: [H, W, 3] (RGB image), intrinsic: [4] (fx, fy, cx, cy)
         # Output: pseudo_lidar: [H * W, 3] (XYZ)
         max_points = 500000
-        training_path = os.path.join(self.cfg.paths.all_dataset_path, self.cfg.path_templates.training_dir)
+        training_path = os.path.join(self.cfg.paths.all_dataset_path, "training")
         all_folders = os.listdir(training_path)
         all_folders = sorted(all_folders)
         all_folders = all_folders[seq_start:seq_end]
@@ -179,14 +179,14 @@ class Metric3D(AutoLabel3D):
                 continue
             if not self.cfg.general.supress_debug_prints:
                 print("Current folder for pseudo_lidar: ", folder)
-            output = os.path.join(self.cfg.paths.merged_frames_path, self.cfg.path_templates.lidar_raw_dir)
+            output = os.path.join(self.cfg.paths.merged_frames_path, "lidar_raw/")
             if not os.path.exists(os.path.join(output, folder)):
                 os.makedirs(os.path.join(output, folder))
 
             if not self.cfg.general.supress_debug_prints:
                 print("Current subfolder for pseudo_lidar: ", folder)
             tmp_folder_path = os.path.join(training_path, folder)
-            path_to_imgs = os.path.join(tmp_folder_path, self.cfg.path_templates.waymo_image_dir)
+            path_to_imgs = os.path.join(tmp_folder_path, 'image_2/')
             image_paths = sorted(glob.glob(os.path.join(path_to_imgs, '*.png')))
 
             output_path = os.path.join(output, folder)
@@ -194,19 +194,19 @@ class Metric3D(AutoLabel3D):
             if not os.path.exists(output_path):
                 os.makedirs(output_path)
             if self.cfg.metric3d.save_also_imgs:
-                if not os.path.exists(os.path.join(output_path, self.cfg.path_templates.pngs_dir)):
-                    os.makedirs(os.path.join(output_path, self.cfg.path_templates.pngs_dir))
-            if not os.path.exists(os.path.join(output_path, self.cfg.path_templates.pcds_dir)):
-                os.makedirs(os.path.join(output_path, self.cfg.path_templates.pcds_dir))
+                if not os.path.exists(os.path.join(output_path, 'pngs')):
+                    os.makedirs(os.path.join(output_path, 'pngs'))
+            if not os.path.exists(os.path.join(output_path, 'pcds')):
+                os.makedirs(os.path.join(output_path, 'pcds'))
 
             for image_path in tqdm(image_paths, desc="Processing Images"):
                 start = time.time_ns()
                 file_name = os.path.basename(image_path)
                 file_name = file_name.split('.')[0]
-                if os.path.exists(os.path.join(output_path, self.cfg.path_templates.pcds_dir, file_name + '.npz')):
+                if os.path.exists(os.path.join(output_path, 'pcds', file_name + '.npz')):
                     continue
 
-                calib_path = os.path.join(tmp_folder_path, self.cfg.path_templates.calib_dir, file_name + '.txt')
+                calib_path = os.path.join(tmp_folder_path, 'calib', file_name + '.txt')
                 P2 = self.load_calibration(calib_path)
 
                 img = cv2.imread(image_path)[:, :, ::-1]
@@ -216,7 +216,7 @@ class Metric3D(AutoLabel3D):
                 pseudo_lidar = np.float32(pseudo_lidar)
                 print('Time for pseudolidar_nosave: ', (time.time_ns() - start) / 1e9)
                 if self.cfg.metric3d.save_also_imgs:
-                    cv2.imwrite(os.path.join(output_path, self.cfg.path_templates.pngs_dir, file_name + '.png'), rgbd)
+                    cv2.imwrite(os.path.join(output_path, 'pngs', file_name + '.png'), rgbd)
 
                 #o3d_pcd = o3d.geometry.PointCloud()
                 #o3d_pcd.points = o3d.utility.Vector3dVector(pseudo_lidar)
@@ -226,7 +226,7 @@ class Metric3D(AutoLabel3D):
                     indices = np.random.choice(N, max_points, replace=False)
                     pseudo_lidar = pseudo_lidar[indices]
 
-                np.savez_compressed(os.path.join(output_path, self.cfg.path_templates.pcds_dir, file_name + '.npz'), array1=np.float32(pseudo_lidar))
+                np.savez_compressed(os.path.join(output_path, 'pcds', file_name + '.npz'), array1=np.float32(pseudo_lidar))
                 #show the point cloud
                 #o3d.visualization.draw_geometries([o3d_pcd])
                 print("Time for pseudo-lidar: ", (time.time_ns() - start) / 1e9)
@@ -236,12 +236,12 @@ class Metric3D(AutoLabel3D):
     def generate_pseudo_lidar_kittibasic(self, dataset='kitti'):
         # Input: img: [H, W, 3] (RGB image), intrinsic: [4] (fx, fy, cx, cy)
         # Output: pseudo_lidar: [H * W, 3] (XYZ)
-        data_path = os.path.join(self.cfg.paths.kitti_path, self.cfg.path_templates.object_detection_dir, self.cfg.path_templates.training_dir)
-        output = os.path.join(self.cfg.paths.merged_frames_path, self.cfg.path_templates.depth_dir)
+        data_path = os.path.join(self.cfg.paths.kitti_path, "object_detection", "training")
+        output = os.path.join(self.cfg.paths.merged_frames_path, "depth/")
         if not os.path.exists(output):
             os.makedirs(output)
 
-        path_to_imgs = os.path.join(data_path, self.cfg.path_templates.waymo_image_dir)
+        path_to_imgs = os.path.join(data_path, 'image_2/')
         image_paths = sorted(glob.glob(os.path.join(path_to_imgs, '*.png')))
         print(output, image_paths)
         output_path = output
@@ -253,7 +253,7 @@ class Metric3D(AutoLabel3D):
             file_name = os.path.basename(image_path)
             file_name = file_name.split('.')[0]
 
-            calibration_file_path = os.path.join(data_path, self.cfg.path_templates.calib_dir, file_name + '.txt')
+            calibration_file_path = os.path.join(data_path, 'calib', file_name + '.txt')
             P2 = self.load_calibration(calibration_file_path)
 
             img = cv2.imread(image_path)[:, :, ::-1]
