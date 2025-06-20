@@ -82,7 +82,7 @@ git clone https://github.com/jskvrna/MonoSOWA.git
     ```sh
     cd MonoSOWA/pseudo_label_generator
     pip install waymo-open-dataset-tf-2-11-0==1.6.1
-    pip3 install torch==2.7.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
+    pip install torch==2.7.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
     pip install -U xformers --index-url https://download.pytorch.org/whl/cu128
     pip install -r requirements.txt
     ```
