@@ -81,6 +81,7 @@ git clone https://github.com/jskvrna/MonoSOWA.git
 2.  Install dependencies from `requirements.txt`:
     ```sh
     cd MonoSOWA/pseudo_label_generator
+    pip install wheel ninja
     pip install waymo-open-dataset-tf-2-11-0==1.6.1
     pip install torch==2.7.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
     pip install -U xformers --index-url https://download.pytorch.org/whl/cu128
