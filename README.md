@@ -82,6 +82,8 @@ git clone https://github.com/jskvrna/MonoSOWA.git
     ```sh
     cd MonoSOWA/pseudo_label_generator
     pip install waymo-open-dataset-tf-2-11-0==1.6.1
+    pip3 install torch==2.7.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
+    pip install -U xformers --index-url https://download.pytorch.org/whl/cu128
     pip install -r requirements.txt
     ```
 3.  Install Detectron2:
@@ -233,6 +235,9 @@ To use the Waymo Open Perception Dataset, we provide a script that converts it i
     ```sh 
     python main.py --config ../configs/config.yaml --dataset all --action lidar_scans
     ```
+    
+    In case of having problems with Metric3D not finding giant backbone please refer to: https://github.com/YvanYin/Metric3D/issues/151.
+
 4. Generate 2D masks via MViTv2 (GPU recommended):
 
     KITTI:
