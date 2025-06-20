@@ -192,7 +192,7 @@ visualization:
 
 metric3d:
   model: metric3d_vit_giant2 # model for the metric3d e.g. metric3d_vit_small
-  save_also_imgs: True # save also the depth images for the metric3d
+  save_also_imgs: False # save also the depth images for the metric3d
 
 deformable_mesh:
   use_deformable_mesh: False # True: use the deformable mesh, False: use the bounding box
