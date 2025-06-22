@@ -26,3 +26,4 @@ tensorboardX
 imgaug
 iopath
 imagecorruptions
+fairscale
