@@ -9,8 +9,8 @@ general:
   batch_size: 1 # batch size for the detectron2
 
 paths:
-  detectron_config: <path_to_detectron2>/projects/MViTv2/configs/cascade_mask_rcnn_mvitv2_b_in21k_3x.py
-  model_path: https://dl.fbaipublicfiles.com/detectron2/MViTv2/cascade_mask_rcnn_mvitv2_b_in12k_3x/f309003202/model_final_be5168.pkl
+  detectron_config: <path_to_detectron2>/projects/MViTv2/configs/cascade_mask_rcnn_mvitv2_h_in21k_lsj_3x.py
+  model_path: https://dl.fbaipublicfiles.com/detectron2/MViTv2/cascade_mask_rcnn_mvitv2_h_in12k_lsj_3x/f309013744/model_final_30d36b.pkl
 
   kitti_path: <path_to_kitti_dataset>/
   all_dataset_path: <path_to_kitti_dataset>/complete_sequences/
