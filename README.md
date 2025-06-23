@@ -19,7 +19,7 @@ Official implementation of **MonoSOWA**: **S**calable m**o**nocular 3D Object de
     <img src="monosowa_intro.png" alt="MonoSOWA Overview" width="80%">
 </p>
 <p align="center">
-    <img src="autonomous_driving.gif" alt="Autonomous Driving Demo" width="80%">
+    <img src="driving_sequence.gif" alt="Autonomous Driving Demo" width="80%">
 </p>
 <!-- TABLE OF CONTENTS -->
 <details open>
