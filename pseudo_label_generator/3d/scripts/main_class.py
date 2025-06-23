@@ -150,6 +150,9 @@ class MainClass(Output, Losses, Optimizer, Visualization, Filtering, Loader, Sca
                     print("Pics_done: ", self.pic_index)
 
     def main_kitti(self, argv):
+        if not os.path.isdir(self.cfg.paths.labels_path):
+            os.makedirs(self.cfg.paths.labels_path, exist_ok=True)
+            
         if self.generate_raw_masks_or_tracking:
             self.load_det2_and_sam()
 
