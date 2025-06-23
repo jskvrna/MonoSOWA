@@ -1787,7 +1787,7 @@ class Loader(AutoLabel3D):
             with open(self.cfg.paths.merged_frames_path + "masks_raw/" + self.file_name + ".zstd", 'rb') as f:
                 decompressed_data = zstd.decompress(f.read())
             masks = pickle.loads(decompressed_data)
-            return masks[100 - self.cfg.frames_creation.nscans_before: 100 + self.cfg.frames_creation.nscans_after + 1]
+            return masks[0: self.cfg.frames_creation.nscans_before + self.cfg.frames_creation.nscans_after + 1]
 
     def precompute_detectron_kitti_v2(self):
         if self.generate_raw_masks_or_tracking:
