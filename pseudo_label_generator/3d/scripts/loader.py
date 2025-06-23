@@ -1702,6 +1702,8 @@ class Loader(AutoLabel3D):
 
     def precompute_detectron_kitti(self):
         if self.generate_raw_masks_or_tracking:
+            if os.path.exists(self.cfg.paths.merged_frames_path + "masks_raw/" + self.file_name + ".zstd"):
+                return
             img_arr = []
             #img_arr_visu = []
             for i in range(-self.cfg.frames_creation.nscans_before, self.cfg.frames_creation.nscans_after + 1):
