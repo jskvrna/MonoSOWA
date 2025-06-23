@@ -1,6 +1,6 @@
 general:
   device: gpu # cpu or gpu
-  supress_debug_prints: False # True: suppress debug prints, False: show debug prints
+  supress_debug_prints: True # True: suppress debug prints, False: show debug prints
 
   seq_start: 0 # start sequence
   seq_end: 160000 # end sequence
@@ -165,7 +165,7 @@ context_aware_growing:
   growing_thresholds: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7] # Thresholds for the growing algorithm
 
 visualization:
-  show_3D_scan: True # show 3D LiDAR scan together with the 3D bounding boxes
+  show_3D_scan: False # show 3D LiDAR scan together with the 3D bounding boxes
   show_image: False # show current images to the regarding frame
   show_points_merged: True # show the merged points, otherwise show the points from scale detector
 
