@@ -293,8 +293,8 @@ We describe training for the KITTI dataset, as preparing KITTI-360 data requires
 2. Use replace human ground-truth training samples with pseudo-label ones, but keep the validation one. Also prepare the labels for training.
     ```sh
     cd pseudo_label_generator/
-    python label_replacer.py MonoDETR/data/KITTI path_to_pseudo_labels
-    python label_preparation.py MonoDETR/data/KITTI
+    python label_replacer.py ../MonoDETR/data/KITTI path_to_pseudo_labels
+    python label_preparation.py ../MonoDETR/data/KITTI
     ```
 
 
