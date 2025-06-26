@@ -10,3 +10,8 @@ scikit-image
 tqdm
 Pillow
 numpy
+open3d
+dill
+zstd
+point_cloud_utils
+numpy==1.26.2

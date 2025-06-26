@@ -302,14 +302,14 @@ We describe training for the KITTI dataset, as preparing KITTI-360 data requires
 
 To train the model, use the following command:
 ```sh
-python train.py --config configs/monodetr.yaml
+python tools/train_val.py --config configs/monodetr.yaml
 ```
 
 **Evaluation**
 
 To evaluate a trained model:
 ```sh
-python test.py --config configs/monodetr.yaml
+python tools/train_val.py --config configs/monodetr.yaml
 ```
 
 <!-- ROADMAP -->
