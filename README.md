@@ -14,6 +14,8 @@
 
 # MonoSOWA
 
+🎉 **MonoSOWA has been accepted to ICCV 2025!** 🎉 
+
 Official implementation of **MonoSOWA**: **S**calable m**o**nocular 3D Object detector **W**ithout human **A**nnotations.
 <p align="center">
     <img src="monosowa_intro.png" alt="MonoSOWA Overview" width="80%">
