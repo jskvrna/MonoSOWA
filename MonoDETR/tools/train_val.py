@@ -14,6 +14,7 @@ sys.path.append(ROOT_DIR)
 import yaml
 import argparse
 import datetime
+import shutil
 
 from lib.helpers.model_helper import build_model
 from lib.helpers.dataloader_helper import build_dataloader
@@ -40,6 +41,7 @@ def main():
     model_name = cfg['model_name']
     output_path = os.path.join('./' + cfg["trainer"]['save_path'], model_name)
     os.makedirs(output_path, exist_ok=True)
+    shutil.copy(args.config, output_path)
 
     log_file = os.path.join(output_path, 'train.log.%s' % datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
     logger = create_logger(log_file)
