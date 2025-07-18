@@ -3,7 +3,6 @@ import glob
 import shutil
 
 data_folder = "/mnt/personal/skvrnjan/KITTI/"
-
 output_kitti_folder = "/mnt/personal/skvrnjan/kk360/"
 
 training_sequences = ["2013_05_28_drive_0000_sync",
@@ -20,15 +19,31 @@ testing_sequences = ["2013_05_28_drive_0010_sync"]
 
 cur_img_index = 10000
 img_start = cur_img_index
+
+total_images = 0
+folder_image_counts = {}
+
+# First pass: count total images for progress reporting
 for folder in sorted(os.listdir(data_folder)):
     if folder in training_sequences:
         cur_folder = os.path.join(data_folder, folder)
-        for image in sorted(glob.glob(os.path.join(cur_folder, "image_00/data_rect/", "*.png"))):
+        images = sorted(glob.glob(os.path.join(cur_folder, "image_00/data_rect/", "*.png")))
+        folder_image_counts[folder] = len(images)
+        total_images += len(images)
+
+print(f"Total images to process: {total_images}")
+
+processed_images = 0
+for folder in sorted(os.listdir(data_folder)):
+    if folder in training_sequences:
+        cur_folder = os.path.join(data_folder, folder)
+        images = sorted(glob.glob(os.path.join(cur_folder, "image_00/data_rect/", "*.png")))
+        print(f"Processing folder {folder} with {len(images)} images...")
+        for idx, image in enumerate(images):
             img_number = os.path.basename(image).split(".")[0]
             cur_calib = os.path.join(cur_folder, "calib", str(img_number) + ".txt")
             cur_label = os.path.join(cur_folder, "label_00", str(img_number) + ".txt")
             cur_pseudo_label = os.path.join(data_folder, "label_pseudo", str(folder) + '_' + str(img_number) + ".txt")
-            cur_velo = os.path.join(cur_folder, "velodyne_points/data", str(img_number) + ".bin")
 
             if not os.path.exists(cur_calib):
                 continue
@@ -44,14 +59,15 @@ for folder in sorted(os.listdir(data_folder)):
                 print("Pseudo label not found for", folder, img_number)
                 with open(os.path.join(output_kitti_folder, "training", "label_2", str(cur_img_index).zfill(6) + ".txt"), 'w') as f:
                     f.write("")
-            shutil.copy(cur_velo, os.path.join(output_kitti_folder, "training", "velodyne", str(cur_img_index).zfill(6) + ".bin"))
             cur_img_index += 1
+            processed_images += 1
+
+            if processed_images % 100 == 0 or processed_images == total_images:
+                print(f"Processed {processed_images}/{total_images} images ({processed_images * 100 // total_images}%)")
 
 num_of_training = cur_img_index
 with open(os.path.join(output_kitti_folder, "ImageSets", "train.txt"), 'a') as f:
     for i in range(img_start, cur_img_index):
         f.write(str(i).zfill(6) + "\n")
 
-
-
-
+print("Processing complete.")
