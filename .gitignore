@@ -1,3 +1,5 @@
 
 pseudo_labelling/bin/
 MonoDETR/lib/models/monodetr/ops/build/
+__pycache__/
+*.pyc

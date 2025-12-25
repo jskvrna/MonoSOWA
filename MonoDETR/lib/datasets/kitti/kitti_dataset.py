@@ -229,11 +229,16 @@ class KITTI_Dataset(data.Dataset):
             depth = np.expand_dims(depth, axis=0)
             img = np.concatenate((img, depth), axis=0)
 
+        fu, fv, cu, cv, height_cropped = self.adjust_intrinsics(calib.fu, calib.fv, calib.cu, calib.cv, img_size, center, crop_scale, crop_size, random_flip_flag)
         if self.use_canonical_module:
-            fu, fv, cu, cv, height_cropped = self.adjust_intrinsics(calib.fu, calib.fv, calib.cu, calib.cv, img_size, center, crop_scale, crop_size, random_flip_flag)
-            canonical_scale = self.canonical_focal_length / fu
+            calib_P2 = calib.P2.astype(np.float32, copy=True)
+            canonical_scale = self.canonical_focal_length / fu  # depth uses horizontal focal normalization
+            # overwrite fx and fy (P2[0,0] and P2[1,1]) to operate in the canonical camera space
+            calib_P2[0, 0] = self.canonical_focal_length
+            calib_P2[1, 1] = fv * canonical_scale
         else:
-            fu, fv, cu, cv, height_cropped = self.adjust_intrinsics(calib.fu, calib.fv, calib.cu, calib.cv, img_size, center, crop_scale, crop_size, random_flip_flag)
+            # share the original calibration when no canonical rescaling is applied (downstream uses it read-only)
+            calib_P2 = calib.P2.astype(np.float32, copy=False)
             canonical_scale = 1.
 
         #height_cropped = 1.
@@ -246,7 +251,7 @@ class KITTI_Dataset(data.Dataset):
 
         if self.split == 'test':
             calib = self.get_calib(index)
-            return img, calib.P2, img, info
+            return img, calib_P2, img, info
 
         #  ============================   get labels   ==============================
         objects = self.get_label(index)
@@ -389,7 +394,7 @@ class KITTI_Dataset(data.Dataset):
             if objects[i].trucation <= 0.5 and objects[i].occlusion <= 2:
                 mask_2d[i] = 1
 
-            calibs[i] = calib.P2
+            calibs[i] = calib_P2
 
             objects_out[i] = np.array([objects[i].h, objects[i].w, objects[i].l, objects[i].pos[0], objects[i].pos[1], objects[i].pos[2], objects[i].ry], dtype=np.float32)
 
@@ -474,7 +479,7 @@ class KITTI_Dataset(data.Dataset):
                 'affine': trans,
                 'affine_inv': trans_inv,
                 'scale_depth': crop_scale,
-                'calib_P2': calib.P2,
+                'calib_P2': calib_P2,
                 'calib_R0': calib.R0,
                 'calib_V2C': calib.V2C,
                 'lidar_whole': lidar,
@@ -486,7 +491,7 @@ class KITTI_Dataset(data.Dataset):
                 'canonical_scale': canonical_scale,
                 'height_crop': height_cropped
                 }
-        return inputs, calib.P2, targets, info
+        return inputs, calib_P2, targets, info
 
     def adjust_intrinsics(self, fx, fy, cx, cy, img_size, center, crop_scale, crop_size, random_flip_flag):
         # Initialize adjusted intrinsics
