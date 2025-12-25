@@ -230,14 +230,15 @@ class KITTI_Dataset(data.Dataset):
             img = np.concatenate((img, depth), axis=0)
 
         fu, fv, cu, cv, height_cropped = self.adjust_intrinsics(calib.fu, calib.fv, calib.cu, calib.cv, img_size, center, crop_scale, crop_size, random_flip_flag)
-        calib_P2 = np.array(calib.P2, dtype=np.float32)
         if self.use_canonical_module:
+            calib_P2 = np.array(calib.P2, dtype=np.float32)
             canonical_focal = self.canonical_focal_length
             # overwrite fx and fy (P2[0,0] and P2[1,1]) to operate in the canonical camera space
             calib_P2[0, 0] = canonical_focal
             calib_P2[1, 1] = canonical_focal
             canonical_scale = canonical_focal / fu
         else:
+            calib_P2 = calib.P2
             canonical_scale = 1.
 
         #height_cropped = 1.
