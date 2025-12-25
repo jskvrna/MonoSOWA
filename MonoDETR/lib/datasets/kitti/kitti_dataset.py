@@ -232,12 +232,10 @@ class KITTI_Dataset(data.Dataset):
         fu, fv, cu, cv, height_cropped = self.adjust_intrinsics(calib.fu, calib.fv, calib.cu, calib.cv, img_size, center, crop_scale, crop_size, random_flip_flag)
         if self.use_canonical_module:
             calib_P2 = calib.P2.astype(np.float32, copy=True)
-            canonical_scale_x = self.canonical_focal_length / fu
-            canonical_scale_y = self.canonical_focal_length / fv
+            canonical_scale = self.canonical_focal_length / fu  # depth uses horizontal focal normalization
             # overwrite fx and fy (P2[0,0] and P2[1,1]) to operate in the canonical camera space
-            calib_P2[0, 0] = fu * canonical_scale_x
-            calib_P2[1, 1] = fv * canonical_scale_y
-            canonical_scale = canonical_scale_x
+            calib_P2[0, 0] = self.canonical_focal_length
+            calib_P2[1, 1] = fv * canonical_scale
         else:
             # share the original calibration when no canonical rescaling is applied (downstream uses it read-only)
             calib_P2 = calib.P2.astype(np.float32, copy=False)
