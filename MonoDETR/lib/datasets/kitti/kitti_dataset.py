@@ -233,8 +233,8 @@ class KITTI_Dataset(data.Dataset):
         canonical_scale = self.canonical_focal_length / fu if self.use_canonical_module else 1.
         calib_P2 = np.array(calib.P2, dtype=np.float32)
         if self.use_canonical_module:
-            calib_P2[0, 0] = fu * canonical_scale
-            calib_P2[1, 1] = fv * canonical_scale
+            calib_P2[0, 0] = self.canonical_focal_length
+            calib_P2[1, 1] = self.canonical_focal_length
 
         #height_cropped = 1.
 
