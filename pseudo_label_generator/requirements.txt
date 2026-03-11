@@ -18,10 +18,8 @@ pyvista
 mmengine
 mmcv
 timm
-DateTime
 Pillow
 plyfile
-HTML4Vision
 tensorboardX
 imgaug
 iopath

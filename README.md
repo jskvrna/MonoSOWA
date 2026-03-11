@@ -325,8 +325,8 @@ We provide pre-trained model weights for MonoDETR to bypass the LFS limit, acces
 <!-- ROADMAP -->
 ## Roadmap
 
--   [ ] Remove unnecessary files
--   [ ] Remove unnecessary packages
+-   [x] Remove unnecessary files
+-   [x] Remove unnecessary packages
 -   [x] Release all pre-trained models
 
 <!-- CONTRIBUTING -->
