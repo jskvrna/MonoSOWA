@@ -314,12 +314,20 @@ To evaluate a trained model:
 python tools/train_val.py --config configs/monodetr.yaml
 ```
 
+### Model Checkpoints
+
+We provide pre-trained model weights for MonoDETR to bypass the LFS limit, accessible via the [v1.0-weights Release](https://github.com/jskvrna/MonoSOWA/releases/tag/v1.0-weights):
+
+- **[best_kitti.pth](https://github.com/jskvrna/MonoSOWA/releases/download/v1.0-weights/best_kitti.pth)**: Trained on the KITTI dataset.
+- **[best_k360_to_kitti.pth](https://github.com/jskvrna/MonoSOWA/releases/download/v1.0-weights/best_k360_to_kitti.pth)**: Trained on KITTI-360 mapped to KITTI format.
+- **[best_kitti_k360_to_kitti](https://github.com/jskvrna/MonoSOWA/releases/download/v1.0-weights/best_kitti_k360_to_kitti)**: Jointly trained on KITTI and KITTI-360.
+
 <!-- ROADMAP -->
 ## Roadmap
 
 -   [ ] Remove unnecessary files
 -   [ ] Remove unnecessary packages
--   [ ] Release all pre-trained models
+-   [x] Release all pre-trained models
 
 <!-- CONTRIBUTING -->
 ## Contributing
